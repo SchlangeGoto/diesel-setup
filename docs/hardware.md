@@ -1,6 +1,6 @@
 # Hardware snapshot
 
-Generated: 2026-11-17T00:37:14+01:00
+Generated: 2026-11-17T00:38:27+01:00
 
 ## System
 ```
@@ -25,7 +25,7 @@ Socket(s):                               1
 Stepping:                                0
 Microcode version:                       0xb204037
 Frequency boost:                         enabled
-CPU(s) scaling MHz:                      132%
+CPU(s) scaling MHz:                      90%
 CPU max MHz:                             2000,0000
 CPU min MHz:                             605,2640
 BogoMIPS:                                3992,28
