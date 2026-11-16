@@ -18,6 +18,7 @@ personal OpenCode agents/commands/skills.
 
 - GitHub CLI: `gh auth login`
 - Google Workspace CLI: install `gws` from <https://github.com/googleworkspace/cli> to `/usr/local/bin/gws`, then run `gws auth login`. The Agenda helpers depend on it.
+- Agenda notifications: `install.sh` enables `agenda-notify.timer`; it runs every five minutes and uses `notify-send`. Check with `systemctl --user list-timers agenda-notify.timer`.
 - Proton VPN: `protonvpn signin`
 - Todoist: desktop app login (the API token comes from the secrets archive)
 - Teams: `teams-for-linux` login
