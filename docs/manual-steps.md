@@ -17,7 +17,7 @@ personal OpenCode agents/commands/skills.
 ## Accounts / logins
 
 - GitHub CLI: `gh auth login`
-- Google Workspace CLI: `gws auth login`
+- Google Workspace CLI: install `gws` from <https://github.com/googleworkspace/cli> to `/usr/local/bin/gws`, then run `gws auth login`. The Agenda helpers depend on it.
 - Proton VPN: `protonvpn signin`
 - Todoist: desktop app login (the API token comes from the secrets archive)
 - Teams: `teams-for-linux` login
