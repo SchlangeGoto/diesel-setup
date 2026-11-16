@@ -1,6 +1,6 @@
 # Hardware snapshot
 
-Generated: 2026-11-16T23:58:44+01:00
+Generated: 2026-11-17T00:09:13+01:00
 
 ## System
 ```
@@ -25,7 +25,7 @@ Socket(s):                               1
 Stepping:                                0
 Microcode version:                       0xb204037
 Frequency boost:                         enabled
-CPU(s) scaling MHz:                      119%
+CPU(s) scaling MHz:                      125%
 CPU max MHz:                             2000,0000
 CPU min MHz:                             605,2640
 BogoMIPS:                                3992,28
@@ -168,7 +168,7 @@ nvme0n1
 ## Memory
 ```
                total        used        free      shared  buff/cache   available
-Mem:            30Gi        15Gi       837Mi       692Mi        13Gi        14Gi
+Mem:            30Gi        15Gi       804Mi       739Mi        13Gi        14Gi
 Swap:             0B          0B          0B
 ```
 
@@ -181,9 +181,9 @@ tmpfs          tmpfs      16G   77M   16G   1% /dev/shm
 efivarfs       efivarfs  128K   56K   68K  46% /sys/firmware/efi/efivars
 tmpfs          tmpfs     6,1G  2,0M  6,1G   1% /run
 none           tmpfs     1,0M     0  1,0M   0% /run/credentials/systemd-journald.service
-tmpfs          tmpfs      16G  344M   15G   3% /tmp
+tmpfs          tmpfs      16G  373M   15G   3% /tmp
 /dev/nvme0n1p2 btrfs     1,4T  205G  1,2T  15% /home
-tmpfs          tmpfs     3,1G   12M  3,1G   1% /run/user/1000
+tmpfs          tmpfs     3,1G   14M  3,1G   1% /run/user/1000
 ```
 
 ## EFI boot entries

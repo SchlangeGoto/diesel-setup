@@ -1,0 +1,176 @@
+From 310e20c49cfeb3903156bce4955996a399f737bc Mon Sep 17 00:00:00 2001
+From: SchlangeGoto <kazimir@kkazi.dev>
+Date: Tue, 17 Nov 2026 00:09:06 +0100
+Subject: [PATCH 5/5] Fix agenda loading performance and simplify tab design
+
+---
+ modules/Shortcuts.qml                |  9 ++++
+ modules/bar/popouts/MiniCalendar.qml |  1 +
+ modules/dashboard/AgendaTab.qml      | 73 +---------------------------
+ modules/dashboard/Content.qml        | 11 ++---
+ 4 files changed, 15 insertions(+), 79 deletions(-)
+
+diff --git a/modules/Shortcuts.qml b/modules/Shortcuts.qml
+index 00498aa..7091b92 100644
+--- a/modules/Shortcuts.qml
++++ b/modules/Shortcuts.qml
+@@ -145,6 +145,15 @@ Scope {
+             screenState.dashboardTab = GlobalConfig.dashboard.showDashboard ? 1 : 0;
+         }
+ 
++        function openDate(date: string): void {
++            const screenState = ShellState.forActive();
++            if (!screenState || !date)
++                return;
++            screenState.pendingAgendaDate = date;
++            screenState.dashboard = true;
++            screenState.dashboardTab = GlobalConfig.dashboard.showDashboard ? 1 : 0;
++        }
++
+         target: "agenda"
+     }
+ 
+diff --git a/modules/bar/popouts/MiniCalendar.qml b/modules/bar/popouts/MiniCalendar.qml
+index fddb4d0..56ed48c 100644
+--- a/modules/bar/popouts/MiniCalendar.qml
++++ b/modules/bar/popouts/MiniCalendar.qml
+@@ -5,6 +5,7 @@ import Caelestia.Config
+ import Caelestia.I18n
+ import qs.components
+ import qs.components.controls
++import qs.services
+ 
+ Item {
+     id: root
+diff --git a/modules/dashboard/AgendaTab.qml b/modules/dashboard/AgendaTab.qml
+index e9ca8f7..d9a27a0 100644
+--- a/modules/dashboard/AgendaTab.qml
++++ b/modules/dashboard/AgendaTab.qml
+@@ -112,24 +112,6 @@ Item {
+         return Colours.palette.m3onSurfaceVariant;
+     }
+ 
+-    function refreshLabel(): string {
+-        if (!Agenda.anyEnabled)
+-            return Tr.tr("Both sources are off");
+-        if (Agenda.anyLoading)
+-            return Tr.tr("Updating...");
+-        if (Agenda.anyStale)
+-            return Tr.tr("Showing cached data");
+-
+-        const stamps = [];
+-        if (Agenda.calendarEnabled && Agenda.calendarUpdated > 0)
+-            stamps.push(Agenda.calendarUpdated);
+-        if (Agenda.todoistEnabled && Agenda.todoistUpdated > 0)
+-            stamps.push(Agenda.todoistUpdated);
+-        if (stamps.length === 0)
+-            return Tr.tr("Not loaded yet");
+-
+-        return Tr.tr("Updated %1").arg(Qt.formatTime(new Date(Math.max(...stamps)), "HH:mm"));
+-    }
+ 
+     ColumnLayout {
+         anchors.fill: parent
+@@ -138,52 +120,7 @@ Item {
+ 
+         RowLayout {
+             Layout.fillWidth: true
+-            spacing: Tokens.spacing.medium
+-
+-            Column {
+-                spacing: 0
+-
+-                StyledText {
+-                    text: Tr.tr("Agenda")
+-                    font: Tokens.font.title.builders.large.weight(Font.DemiBold).build()
+-                    color: Colours.palette.m3onSurface
+-                }
+-            }
+-
+-            Item {
+-                Layout.fillWidth: true
+-            }
+-
+-            IconTextButton {
+-                icon: "calendar_month"
+-                text: Tr.tr("Calendar")
+-                type: IconTextButton.Tonal
+-                isToggle: true
+-                checked: Agenda.calendarEnabled
+-                onClicked: Agenda.setCalendarEnabled(!Agenda.calendarEnabled)
+-            }
+-
+-            IconTextButton {
+-                icon: "checklist"
+-                text: Tr.tr("Todoist")
+-                type: IconTextButton.Tonal
+-                isToggle: true
+-                checked: Agenda.todoistEnabled
+-                onClicked: Agenda.setTodoistEnabled(!Agenda.todoistEnabled)
+-            }
+-
+-            IconButton {
+-                icon: "refresh"
+-                type: IconButton.Tonal
+-                isRound: true
+-                enabled: Agenda.anyEnabled
+-                onClicked: Agenda.refreshAll()
+-            }
+-        }
+-
+-        RowLayout {
+-            Layout.fillWidth: true
+-            spacing: Tokens.spacing.extraSmall
++            spacing: Tokens.spacing.small
+ 
+             IconButton {
+                 visible: Agenda.dayMode
+@@ -195,7 +132,7 @@ Item {
+ 
+             StyledText {
+                 text: Agenda.selectedDateLabel
+-                font: Tokens.font.title.small
++                font: Tokens.font.title.builders.large.weight(Font.DemiBold).build()
+                 color: Colours.palette.m3onSurface
+             }
+ 
+@@ -225,12 +162,6 @@ Item {
+             Item {
+                 Layout.fillWidth: true
+             }
+-
+-            StyledText {
+-                text: root.refreshLabel()
+-                font: Tokens.font.body.small
+-                color: Colours.palette.m3onSurfaceVariant
+-            }
+         }
+ 
+         Item {
+diff --git a/modules/dashboard/Content.qml b/modules/dashboard/Content.qml
+index b81cb80..82c8611 100644
+--- a/modules/dashboard/Content.qml
++++ b/modules/dashboard/Content.qml
+@@ -146,16 +146,11 @@ Item {
+ 
+                         Layout.alignment: Qt.AlignTop
+ 
+-                        // Important: Loader.active defaults to true. Without
+-                        // this, every tab is instantiated once before the
+-                        // binding below is installed.
+-                        active: false
+                         sourceComponent: modelData.component
+ 
+-                        // Load only the active tab. Preloading neighbours made
+-                        // the dashboard noticeably slower on hover because the
+-                        // Agenda/Media panes are relatively expensive.
+-                        Component.onCompleted: active = Qt.binding(() => index === view.currentIndex)
++                        // Load only the active tab. Keeping every tab loaded
++                        // made the first dashboard open noticeably slower.
++                        active: index === view.currentIndex
+                     }
+                 }
+             }
+-- 
+2.56.1
+
