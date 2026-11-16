@@ -89,6 +89,28 @@ if ((INSTALL_PACKAGES)); then
     fi
 fi
 
+if ((INSTALL_PACKAGES)); then
+    say "Editor extensions"
+    if command -v codium >/dev/null 2>&1 && [[ -s "$REPO_DIR/packages/vscodium-extensions.txt" ]]; then
+        while IFS= read -r ext; do
+            [[ -n "$ext" ]] && run codium --install-extension "$ext" --force
+        done < "$REPO_DIR/packages/vscodium-extensions.txt"
+    fi
+    if command -v code >/dev/null 2>&1 && [[ -s "$REPO_DIR/packages/code-extensions.txt" ]]; then
+        while IFS= read -r ext; do
+            [[ -n "$ext" ]] && run code --install-extension "$ext" --force
+        done < "$REPO_DIR/packages/code-extensions.txt"
+    fi
+
+    say "Global npm packages"
+    if command -v npm >/dev/null 2>&1 && [[ -s "$REPO_DIR/packages/npm-global.txt" ]]; then
+        mapfile -t npm_pkgs < <(grep -v '^$' "$REPO_DIR/packages/npm-global.txt")
+        if ((${#npm_pkgs[@]})); then
+            run npm install -g "${npm_pkgs[@]}"
+        fi
+    fi
+fi
+
 say "Restoring home"
 while IFS= read -r rel || [[ -n "$rel" ]]; do
     [[ -z "$rel" || "$rel" == \#* ]] && continue
