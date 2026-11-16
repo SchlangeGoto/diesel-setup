@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Caelestia",
+  "version": "1.0.0",
+  "description": "Caelestia dynamic theme for Chromium",
+  "theme": {
+    "colors": {
+      "frame": [{{ surfaceDim.red }}, {{ surfaceDim.green }}, {{ surfaceDim.blue }}],
+      "frame_inactive": [{{ surfaceDim.red }}, {{ surfaceDim.green }}, {{ surfaceDim.blue }}],
+      "toolbar": [{{ surfaceContainer.red }}, {{ surfaceContainer.green }}, {{ surfaceContainer.blue }}],
+      "tab_text": [{{ onSurface.red }}, {{ onSurface.green }}, {{ onSurface.blue }}],
+      "tab_background_text": [{{ outline.red }}, {{ outline.green }}, {{ outline.blue }}],
+      "tab_line": [{{ surfaceContainer.red }}, {{ surfaceContainer.green }}, {{ surfaceContainer.blue }}],
+      "tab_loading": [{{ primary.red }}, {{ primary.green }}, {{ primary.blue }}],
+      "tab_background_separator": [{{ surfaceContainerLow.red }}, {{ surfaceContainerLow.green }}, {{ surfaceContainerLow.blue }}],
+      "bookmark_text": [{{ onSurface.red }}, {{ onSurface.green }}, {{ onSurface.blue }}],
+      "ntp_background": [{{ surface.red }}, {{ surface.green }}, {{ surface.blue }}],
+      "ntp_text": [{{ onSurface.red }}, {{ onSurface.green }}, {{ onSurface.blue }}],
+      "ntp_link": [{{ primary.red }}, {{ primary.green }}, {{ primary.blue }}],
+      "ntp_card_background": [{{ surfaceContainer.red }}, {{ surfaceContainer.green }}, {{ surfaceContainer.blue }}],
+      "button_background": [{{ surfaceContainerHigh.red }}, {{ surfaceContainerHigh.green }}, {{ surfaceContainerHigh.blue }}],
+      "toolbar_button_icon": [{{ secondary.red }}, {{ secondary.green }}, {{ secondary.blue }}],
+      "toolbar_text": [{{ onSurface.red }}, {{ onSurface.green }}, {{ onSurface.blue }}],
+      "toolbar_field": [{{ surfaceBright.red }}, {{ surfaceBright.green }}, {{ surfaceBright.blue }}],
+      "toolbar_field_text": [{{ onSurfaceVariant.red }}, {{ onSurfaceVariant.green }}, {{ onSurfaceVariant.blue }}],
+      "toolbar_field_border": [{{ surfaceBright.red }}, {{ surfaceBright.green }}, {{ surfaceBright.blue }}],
+      "toolbar_field_focus": [{{ surfaceBright.red }}, {{ surfaceBright.green }}, {{ surfaceBright.blue }}],
+      "toolbar_field_text_focus": [{{ onSurface.red }}, {{ onSurface.green }}, {{ onSurface.blue }}],
+      "toolbar_field_border_focus": [{{ primary.red }}, {{ primary.green }}, {{ primary.blue }}],
+      "toolbar_field_separator": [{{ surface.red }}, {{ surface.green }}, {{ surface.blue }}],
+      "toolbar_field_highlight": [{{ primary.red }}, {{ primary.green }}, {{ primary.blue }}],
+      "toolbar_field_highlight_text": [{{ onPrimary.red }}, {{ onPrimary.green }}, {{ onPrimary.blue }}],
+      "toolbar_top_separator": [{{ surfaceContainer.red }}, {{ surfaceContainer.green }}, {{ surfaceContainer.blue }}],
+      "toolbar_bottom_separator": [{{ surface.red }}, {{ surface.green }}, {{ surface.blue }}],
+      "toolbar_vertical_separator": [{{ secondaryContainer.red }}, {{ secondaryContainer.green }}, {{ secondaryContainer.blue }}],
+      "popup": [{{ surfaceContainer.red }}, {{ surfaceContainer.green }}, {{ surfaceContainer.blue }}],
+      "popup_text": [{{ onSurface.red }}, {{ onSurface.green }}, {{ onSurface.blue }}],
+      "popup_border": [{{ outlineVariant.red }}, {{ outlineVariant.green }}, {{ outlineVariant.blue }}],
+      "popup_highlight": [{{ primary.red }}, {{ primary.green }}, {{ primary.blue }}],
+      "popup_highlight_text": [{{ onPrimary.red }}, {{ onPrimary.green }}, {{ onPrimary.blue }}],
+      "side_panel_background": [{{ surfaceContainerHigh.red }}, {{ surfaceContainerHigh.green }}, {{ surfaceContainerHigh.blue }}],
+      "side_panel_text": [{{ onSurface.red }}, {{ onSurface.green }}, {{ onSurface.blue }}]
+    },
+    "properties": {
+      "color_scheme": "dark",
+      "ntp_logo_alternate": 1
+    }
+  }
+}

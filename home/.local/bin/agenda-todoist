@@ -1,0 +1,202 @@
+#!/usr/bin/env python3
+"""Fetch Todoist tasks for the Caelestia Agenda tab.
+
+Fetches all active tasks with due dates and projects from the Todoist API,
+prints normalized JSON, and lets the shell filter by day or by the configured
+rolling window. Falls back to the last successful cache when Todoist is
+unavailable.
+"""
+
+from __future__ import annotations
+
+import datetime as dt
+import json
+import os
+import subprocess
+import sys
+import urllib.parse
+import urllib.request
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+HOME = Path.home()
+CONFIG = Path(os.environ.get("AGENDA_CONFIG", HOME / ".config/caelestia/agenda.json"))
+CACHE = Path(os.environ.get("XDG_CACHE_HOME", HOME / ".cache")) / "caelestia" / "agenda-todoist.json"
+SECRET = HOME / ".config/caelestia/secrets" / "todoist"
+API = "https://api.todoist.com/api/v1"
+TZ = ZoneInfo("Europe/Vienna")
+AUTO_PROJECTS = {"prüfungen", "eduvidual"}
+
+
+def token() -> str:
+    env = os.environ.get("TODOIST_TOKEN", "").strip()
+    if env:
+        return env
+
+    for path in (SECRET, HOME / ".config/untis/config.json"):
+        try:
+            if path == HOME / ".config/untis/config.json":
+                return str(json.loads(path.read_text(encoding="utf-8"))["todoist"]["token"]).strip()
+            value = path.read_text(encoding="utf-8").strip()
+            if value:
+                return value
+        except Exception:
+            continue
+
+    try:
+        proc = subprocess.run(
+            [
+                "ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5", "sync",
+                "python3 -c \"import json;print(json.load(open('/var/lib/sync/.config/eduvidual-sync/config.json'))['todoist']['token'])\"",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            return proc.stdout.strip()
+    except Exception:
+        pass
+
+    raise RuntimeError("Todoist API token not found")
+
+
+def api_get(path: str, **params) -> dict:
+    url = API + path
+    if params:
+        url += "?" + urllib.parse.urlencode(params)
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": "Bearer " + token(),
+            "User-Agent": "caelestia-agenda/1.0",
+        },
+    )
+    with urllib.request.urlopen(request, timeout=25) as response:
+        return json.loads(response.read().decode() or "{}")
+
+
+def all_pages(path: str, **params) -> list[dict]:
+    items: list[dict] = []
+    cursor = None
+    while True:
+        query = dict(params)
+        query.setdefault("limit", 200)
+        if cursor:
+            query["cursor"] = cursor
+        page = api_get(path, **query)
+        items.extend(page.get("results") or [])
+        cursor = page.get("next_cursor")
+        if not cursor:
+            return items
+
+
+def due_info(task: dict) -> tuple[str | None, str, bool]:
+    due = task.get("due") or {}
+    raw = due.get("datetime") or due.get("date") or ""
+    if not raw:
+        return None, "", False
+
+    if "T" in raw:
+        try:
+            value = dt.datetime.fromisoformat(raw)
+            if value.tzinfo is None:
+                value = value.replace(tzinfo=TZ)
+            value = value.astimezone(TZ)
+            return value.date().isoformat(), value.strftime("%H:%M"), False
+        except Exception:
+            pass
+
+    try:
+        return dt.date.fromisoformat(raw).isoformat(), "", True
+    except Exception:
+        return None, "", False
+
+
+def dump(payload: dict) -> None:
+    print(json.dumps(payload, ensure_ascii=False))
+
+
+def fallback(reason: str) -> None:
+    try:
+        cached = json.loads(CACHE.read_text(encoding="utf-8"))
+        cached["stale"] = True
+        cached["error"] = reason
+        dump(cached)
+    except Exception:
+        dump({
+            "generated": None,
+            "stale": True,
+            "error": reason,
+            "tasks": [],
+        })
+
+
+def main() -> None:
+    try:
+        projects = {
+            item.get("id"): item.get("name") or ""
+            for item in all_pages("/projects")
+        }
+        tasks = all_pages("/tasks")
+    except Exception as exc:
+        fallback(str(exc))
+        return
+
+    today = dt.datetime.now(TZ).date()
+    horizon = today + dt.timedelta(days=365)
+    picked = []
+
+    for task in tasks:
+        if task.get("is_deleted"):
+            continue
+
+        date, time, all_day = due_info(task)
+        if not date:
+            continue
+
+        due_date = dt.date.fromisoformat(date)
+        if due_date > horizon:
+            continue
+
+        project = projects.get(task.get("project_id"), "")
+        picked.append({
+            "id": task.get("id"),
+            "content": task.get("content") or "",
+            "project": project,
+            "projectId": task.get("project_id"),
+            "date": date,
+            "time": time,
+            "allDay": all_day,
+            "overdue": due_date < today,
+            "auto": project.strip().casefold() in AUTO_PROJECTS,
+            "priority": int(task.get("priority") or 1),
+            "labels": task.get("labels") or [],
+        })
+
+    picked.sort(key=lambda item: (
+        item["overdue"] is False,
+        item["date"],
+        item["time"] or "00:00",
+        -item["priority"],
+        item["content"].casefold(),
+    ))
+
+    result = {
+        "generated": dt.datetime.now(TZ).isoformat(timespec="seconds"),
+        "stale": False,
+        "tasks": picked,
+    }
+
+    try:
+        CACHE.parent.mkdir(parents=True, exist_ok=True)
+        CACHE.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
+        os.chmod(CACHE, 0o600)
+    except Exception:
+        pass
+
+    dump(result)
+
+
+if __name__ == "__main__":
+    main()

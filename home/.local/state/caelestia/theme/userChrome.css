@@ -1,0 +1,13 @@
+:root {
+  --toolbar-bgcolor: #0b0f11 !important;
+  --tab-selected-bgcolor: #151a1e !important;
+  --arrowpanel-background: #151a1e !important;
+  --sidebar-background-color: #0b0f11 !important;
+}
+#folderTree, #messengerBox {
+  background-color: #0b0f11 !important;
+  color: #dfe6ed !important;
+}
+.tab-background[selected="true"] {
+  background-color: #a5cce5 !important;
+}

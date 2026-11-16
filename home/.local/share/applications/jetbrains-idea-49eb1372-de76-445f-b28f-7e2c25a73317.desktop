@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=IntelliJ IDEA 2026.2.3
+Exec="/home/kraftstoff/.local/share/JetBrains/Toolbox/apps/intellij-idea/bin/idea" %u
+Version=1.0
+Type=Application
+Categories=Development;IDE;
+Terminal=false
+Icon=jetbrains-idea-49eb1372-de76-445f-b28f-7e2c25a73317
+X-Icon-Path=/home/kraftstoff/.local/share/icons/hicolor/scalable/apps/jetbrains-idea-49eb1372-de76-445f-b28f-7e2c25a73317.svg
+X-Installed-Icon-Cache-Path=/home/kraftstoff/.local/share/icons/hicolor
+X-Icon-Name-Before-Sanitization=jetbrains-idea-49eb1372-de76-445f-b28f-7e2c25a73317.desktop.icon.svg
+Comment=The IDE for pro Java and Kotlin development
+StartupWMClass=jetbrains-idea
+StartupNotify=true

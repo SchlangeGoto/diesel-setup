@@ -1,0 +1,4 @@
+# This file contains fish universal variable definitions.
+# VERSION: 3.0
+SETUVAR --export EDITOR:nvim
+SETUVAR fish_user_paths:/home/kraftstoff/\x2elocal/opt/google\x2dcloud\x2dsdk/bin\x1e/home/kraftstoff/\x2elocal/bin

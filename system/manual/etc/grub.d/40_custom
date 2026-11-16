@@ -1,0 +1,23 @@
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+menuentry 'Arch' --class arch --class gnu-linux --class gnu --class os $menuentry_id_option 'gnulinux-simple-53034fdb-cae5-4b7d-bf13-cd367d2b0362' {
+	load_video
+	set gfxpayload=keep
+	insmod gzio
+	insmod part_gpt
+	insmod btrfs
+	search --no-floppy --fs-uuid --set=root 53034fdb-cae5-4b7d-bf13-cd367d2b0362
+	echo	'Loading Linux linux ...'
+	linux	/@/boot/vmlinuz-linux root=UUID=53034fdb-cae5-4b7d-bf13-cd367d2b0362 rw rootflags=subvol=@  loglevel=3 quiet
+	echo	'Loading initial ramdisk ...'
+	initrd	/@/boot/amd-ucode.img /@/boot/initramfs-linux.img
+}
+menuentry 'Winbloat' --class windows --class os $menuentry_id_option 'osprober-efi-C212-76CB' {
+	insmod part_gpt
+	insmod fat
+	search --no-floppy --fs-uuid --set=root C212-76CB
+	chainloader /efi/Microsoft/Boot/bootmgfw.efi
+}

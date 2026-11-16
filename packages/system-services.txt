@@ -1,0 +1,17 @@
+UNIT FILE                          STATE   PRESET
+vmware-networks.path               enabled disabled
+vmware-usbarbitrator.path          enabled disabled
+bluetooth.service                  enabled disabled
+getty@.service                     enabled enabled
+grub-btrfsd.service                enabled disabled
+NetworkManager-dispatcher.service  enabled disabled
+NetworkManager-wait-online.service enabled disabled
+NetworkManager.service             enabled disabled
+proton.VPN.service                 enabled disabled
+sddm.service                       enabled disabled
+systemd-timesyncd.service          enabled enabled
+docker.socket                      enabled disabled
+systemd-userdbd.socket             enabled enabled
+remote-fs.target                   enabled enabled
+
+14 unit files listed.

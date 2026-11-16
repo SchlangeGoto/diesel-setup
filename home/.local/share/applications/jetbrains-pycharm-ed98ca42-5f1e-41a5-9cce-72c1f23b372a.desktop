@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=PyCharm 2026.2.3
+Exec="/home/kraftstoff/.local/share/JetBrains/Toolbox/apps/pycharm/bin/pycharm" %u
+Version=1.0
+Type=Application
+Categories=Development;IDE;
+Terminal=false
+Icon=jetbrains-pycharm-ed98ca42-5f1e-41a5-9cce-72c1f23b372a
+X-Icon-Path=/home/kraftstoff/.local/share/icons/hicolor/scalable/apps/jetbrains-pycharm-ed98ca42-5f1e-41a5-9cce-72c1f23b372a.svg
+X-Installed-Icon-Cache-Path=/home/kraftstoff/.local/share/icons/hicolor
+X-Icon-Name-Before-Sanitization=jetbrains-pycharm-ed98ca42-5f1e-41a5-9cce-72c1f23b372a.desktop.icon.svg
+Comment=The Only Python IDE you need
+StartupWMClass=jetbrains-pycharm
+StartupNotify=true

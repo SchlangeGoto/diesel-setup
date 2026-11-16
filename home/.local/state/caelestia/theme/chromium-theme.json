@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Caelestia",
+  "version": "1.0.0",
+  "description": "Caelestia dynamic theme for Chromium",
+  "theme": {
+    "colors": {
+      "frame": [11, 15, 17],
+      "frame_inactive": [11, 15, 17],
+      "toolbar": [21, 26, 30],
+      "tab_text": [223, 230, 237],
+      "tab_background_text": [111, 118, 124],
+      "tab_line": [21, 26, 30],
+      "tab_loading": [165, 204, 229],
+      "tab_background_separator": [15, 20, 23],
+      "bookmark_text": [223, 230, 237],
+      "ntp_background": [11, 15, 17],
+      "ntp_text": [223, 230, 237],
+      "ntp_link": [165, 204, 229],
+      "ntp_card_background": [21, 26, 30],
+      "button_background": [26, 32, 37],
+      "toolbar_button_icon": [182, 201, 216],
+      "toolbar_text": [223, 230, 237],
+      "toolbar_field": [38, 45, 50],
+      "toolbar_field_text": [164, 172, 179],
+      "toolbar_field_border": [38, 45, 50],
+      "toolbar_field_focus": [38, 45, 50],
+      "toolbar_field_text_focus": [223, 230, 237],
+      "toolbar_field_border_focus": [165, 204, 229],
+      "toolbar_field_separator": [11, 15, 17],
+      "toolbar_field_highlight": [165, 204, 229],
+      "toolbar_field_highlight_text": [28, 68, 89],
+      "toolbar_top_separator": [21, 26, 30],
+      "toolbar_bottom_separator": [11, 15, 17],
+      "toolbar_vertical_separator": [43, 62, 73],
+      "popup": [21, 26, 30],
+      "popup_text": [223, 230, 237],
+      "popup_border": [65, 73, 78],
+      "popup_highlight": [165, 204, 229],
+      "popup_highlight_text": [28, 68, 89],
+      "side_panel_background": [26, 32, 37],
+      "side_panel_text": [223, 230, 237]
+    },
+    "properties": {
+      "color_scheme": "dark",
+      "ntp_logo_alternate": 1
+    }
+  }
+}

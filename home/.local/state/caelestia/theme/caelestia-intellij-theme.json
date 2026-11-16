@@ -1,0 +1,876 @@
+{
+  "name": "Caelestia",
+  "dark": __DARK_MODE__,
+  "author": "SchlangeGoto / Caelestia",
+  "editorScheme": "/caelestia.theme.xml",
+  "parentTheme": "__PARENT_THEME__",
+  "colors": {
+    "cael-surface": "#0b0f11",
+    "cael-surface-lowest": "#000000",
+    "cael-surface-low": "#0f1417",
+    "cael-surface-container": "#151a1e",
+    "cael-surface-high": "#1a2025",
+    "cael-surface-highest": "#1f272c",
+    "cael-on-surface": "#dfe6ed",
+    "cael-on-surface-variant": "#a4acb3",
+    "cael-outline": "#6f767c",
+    "cael-outline-variant": "#41494e",
+    "cael-primary": "#a5cce5",
+    "cael-on-primary": "#1c4459",
+    "cael-primary-container": "#30576d",
+    "cael-on-primary-container": "#c6e8ff",
+    "cael-secondary": "#b6c9d8",
+    "cael-on-secondary": "#30424e",
+    "cael-secondary-container": "#2b3e49",
+    "cael-on-secondary-container": "#aec2d0",
+    "cael-tertiary": "#d9deff",
+    "cael-on-tertiary": "#454e75",
+    "cael-tertiary-container": "#c7cffe",
+    "cael-on-tertiary-container": "#3d456c",
+    "cael-error": "#fa746f",
+    "cael-on-error": "#490006",
+    "cael-error-container": "#871f21",
+    "cael-on-error-container": "#ff9993",
+    "cael-shadow": "#000000",
+    "cael-scrim": "#000000",
+    "cael-divider": "#41494e52",
+    "cael-popup-border": "#41494e66",
+    "cael-menu-hover": "#a5cce524",
+
+    "text-default": "cael-on-surface",
+    "text-muted": "cael-on-surface-variant",
+    "text-secondary": "cael-on-surface-variant",
+    "text-disabled": "cael-outline",
+    "text-over-accent": "cael-on-primary",
+    "text-over-accent-inverted": "cael-on-primary",
+    "text-link": "cael-primary",
+    "text-error": "cael-error",
+    "text-warning": "cael-secondary",
+    "text-success": "cael-tertiary",
+    "editor-text": "cael-on-surface",
+
+    "layer-0-bg": "cael-surface",
+    "layer-0-bg-inline": "cael-surface-lowest",
+    "layer-0-border": "cael-outline-variant",
+    "layer-1-bg": "cael-surface-low",
+    "layer-1-bg-inline": "cael-surface-low",
+    "layer-1-border": "cael-outline-variant",
+    "layer-2-bg": "cael-surface-container",
+    "layer-2-bg-inline": "cael-surface-high",
+    "layer-2-border": "cael-outline-variant",
+
+    "accent-brand-bg": "cael-primary",
+    "accent-brand-border": "cael-primary",
+    "accent-brand-bg-secondary": "cael-primary-container",
+    "accent-brand-border-secondary": "cael-primary-container",
+    "accent-error-bg": "cael-error",
+    "accent-error-border": "cael-error",
+    "accent-error-bg-secondary": "cael-error-container",
+    "accent-error-border-secondary": "cael-error-container",
+    "accent-warning-bg": "cael-secondary",
+    "accent-warning-border": "cael-secondary",
+    "accent-warning-bg-secondary": "cael-secondary-container",
+    "accent-warning-border-secondary": "cael-secondary-container",
+    "accent-success-bg": "cael-tertiary",
+    "accent-success-border": "cael-tertiary",
+    "accent-success-bg-secondary": "cael-tertiary-container",
+    "accent-success-border-secondary": "cael-tertiary-container",
+    "accent-neutral-bg": "cael-outline",
+    "accent-ai-bg": "cael-tertiary-container",
+    "accent-ai-border": "cael-tertiary",
+
+    "core-bg-transparent-hovered": "#dfe6ed17",
+    "core-bg-transparent-pressed": "#dfe6ed29",
+    "core-border-transparent": "#dfe6ed1f",
+
+    "dialog-bg": "cael-surface-container",
+    "dialog-bg-inline": "cael-surface-low",
+    "dialog-border": "cael-outline-variant",
+    "popup-bg": "cael-surface-container",
+    "popup-bg-inline": "cael-surface-low",
+    "popup-border": "cael-popup-border",
+    "popup-border-inline": "cael-popup-border",
+    "editor-bg": "cael-surface",
+    "editor-bg-inline": "cael-surface-low",
+    "editor-border": "cael-outline-variant",
+    "editor-border-inline": "cael-outline-variant",
+    "editor-border-alt": "cael-outline-variant",
+    "tool-window-bg": "cael-surface-low",
+    "tool-window-bg-inline": "cael-surface-low",
+    "tool-window-bg-alt": "cael-surface-container",
+    "tool-window-border": "cael-outline-variant",
+    "tool-window-border-inline": "cael-outline-variant",
+    "main-window-bg": "cael-surface-low",
+    "main-window-bg-alt": "cael-surface-container",
+    "main-window-border": "cael-outline-variant",
+
+    "control-bg": "cael-surface-high",
+    "control-bg-disabled": "cael-surface-low",
+    "control-bg-raised": "cael-surface-container",
+    "control-border": "cael-outline-variant",
+    "control-border-disabled": "cael-outline-variant",
+    "control-border-raised": "cael-outline",
+    "control-border-over-accent": "#1c445980",
+    "control-bg-small": "cael-surface-highest",
+    "control-bg-small-disabled": "cael-surface-low",
+    "control-border-small": "cael-outline",
+    "control-brand-bg": "cael-primary",
+    "control-brand-border": "cael-primary",
+    "control-error-bg": "cael-error",
+    "control-error-border": "cael-error",
+    "control-error-border-secondary": "cael-error-container",
+    "control-warning-bg": "cael-secondary",
+    "control-warning-border": "cael-secondary",
+    "control-warning-border-secondary": "cael-secondary-container",
+    "control-success-bg": "cael-tertiary",
+    "control-success-border": "cael-tertiary",
+    "control-success-border-secondary": "cael-tertiary-container",
+
+    "toolbar-bg-hovered": "#dfe6ed17",
+    "toolbar-bg-pressed": "#dfe6ed29",
+    "toolbar-border": "cael-outline-variant",
+    "toolbar-selected-bg": "cael-primary-container",
+    "toolbar-selected-bg-hovered": "cael-primary-container",
+    "toolbar-selected-bg-active": "cael-primary",
+    "toolbar-run-bg": "cael-tertiary",
+    "toolbar-run-bg-hovered": "#d9deffd9",
+    "toolbar-stop-bg": "cael-error",
+    "toolbar-stop-bg-hovered": "#fa746fd9",
+
+    "feedback-bg": "cael-surface-container",
+    "feedback-border": "cael-surface-container",
+    "feedback-bg-inline": "cael-surface-low",
+    "feedback-brand-bg": "cael-primary-container",
+    "feedback-brand-border": "cael-primary",
+    "feedback-success-bg": "cael-tertiary-container",
+    "feedback-success-border": "cael-tertiary",
+    "feedback-warning-bg": "cael-secondary-container",
+    "feedback-warning-border": "cael-secondary",
+    "feedback-error-bg": "cael-error-container",
+    "feedback-error-border": "cael-error",
+    "feedback-control-border": "cael-on-primary",
+    "feedback-ai-bg": "cael-tertiary-container",
+    "feedback-ai-border": "cael-tertiary",
+
+    "selection-bg-active": "cael-primary-container",
+    "selection-bg-active-muted": "#30576dd9",
+    "selection-bg-inactive": "cael-surface-high",
+    "selection-bg-hovered": "#dfe6ed17",
+    "selection-fg": "cael-on-primary-container",
+    "selection-fg-inactive": "cael-on-surface",
+
+    "tab-selected-bg-active": "cael-surface",
+    "tab-selected-bg-inactive": "cael-surface-low",
+    "tab-selected-border-active": "cael-primary",
+    "tab-selected-border-inactive": "cael-outline-variant",
+    "tab-bg-hovered": "cael-surface-high",
+    "tab-file-color-mask-bg": "#0b0f11cc",
+
+    "got-it-bg": "cael-primary-container",
+    "got-it-border": "cael-primary",
+    "got-it-text-link": "cael-primary",
+    "got-it-text-step": "cael-on-surface-variant",
+    "got-it-shortcut-bg": "cael-surface-high",
+    "got-it-code-border": "#dfe6ed40",
+    "got-it-contrast-button-bg": "cael-primary",
+
+    "inlay-bg": "#a5cce51f",
+    "inlay-border": "#a5cce566",
+    "toggle-off-bg": "cael-surface-high",
+    "toggle-button-bg": "cael-outline",
+    "toggle-border": "cael-outline",
+    "editor-floating-toolbar-bg": "cael-surface-container",
+    "popup-completion-match-text": "cael-primary",
+    "presentation-assistant-bg": "cael-primary-container",
+    "search-match-bg": "cael-primary-container",
+    "tree-indent-guide-border": "cael-outline-variant",
+    "icon-default-stroke": "cael-on-surface-variant",
+    "icon-over-accent": "cael-on-primary",
+    "icon-green-stroke": "cael-tertiary",
+
+    "grad-hor-left": "#00000033",
+    "grad-hor-right": "#0000004d",
+    "grad-ver-top": "#0000001a",
+    "grad-ver-bottom": "#00000080",
+    "grad-g1-amber-a1": "cael-primary",
+    "grad-g1-amber-a1-transparent": "#a5cce500",
+    "grad-g1-amber-a1-secondary": "cael-surface-container",
+    "grad-g1-amber-a2": "cael-surface-low",
+    "grad-g1-amber-bg": "cael-surface-container",
+    "grad-g2-rust-a1": "cael-secondary",
+    "grad-g2-rust-a1-transparent": "#b6c9d800",
+    "grad-g2-rust-a1-secondary": "cael-surface-container",
+    "grad-g2-rust-a2": "cael-surface-low",
+    "grad-g2-rust-bg": "cael-surface-container",
+    "grad-g3-olive-a1": "cael-tertiary",
+    "grad-g3-olive-a1-transparent": "#d9deff00",
+    "grad-g3-olive-a1-secondary": "cael-surface-container",
+    "grad-g3-olive-a2": "cael-surface-low",
+    "grad-g3-olive-bg": "cael-surface-container",
+    "grad-g4-sky-a1": "cael-primary",
+    "grad-g4-sky-a1-transparent": "#a5cce500",
+    "grad-g4-sky-a1-secondary": "cael-surface-container",
+    "grad-g4-sky-a2": "cael-surface-low",
+    "grad-g4-sky-bg": "cael-surface-container",
+    "grad-g5-cobalt-a1": "cael-secondary",
+    "grad-g5-cobalt-a1-transparent": "#b6c9d800",
+    "grad-g5-cobalt-a1-secondary": "cael-surface-container",
+    "grad-g5-cobalt-a2": "cael-surface-low",
+    "grad-g5-cobalt-bg": "cael-surface-container",
+    "grad-g6-plum-a1": "cael-tertiary",
+    "grad-g6-plum-a1-transparent": "#d9deff00",
+    "grad-g6-plum-a1-secondary": "cael-surface-container",
+    "grad-g6-plum-a2": "cael-surface-low",
+    "grad-g6-plum-bg": "cael-surface-container",
+    "grad-g7-violet-a1": "cael-primary",
+    "grad-g7-violet-a1-transparent": "#a5cce500",
+    "grad-g7-violet-a1-secondary": "cael-surface-container",
+    "grad-g7-violet-a2": "cael-surface-low",
+    "grad-g7-violet-bg": "cael-surface-container",
+    "grad-g8-ocean-a1": "cael-secondary",
+    "grad-g8-ocean-a1-transparent": "#b6c9d800",
+    "grad-g8-ocean-a1-secondary": "cael-surface-container",
+    "grad-g8-ocean-a2": "cael-surface-low",
+    "grad-g8-ocean-bg": "cael-surface-container",
+    "grad-g9-grass-a1": "cael-tertiary",
+    "grad-g9-grass-a1-transparent": "#d9deff00",
+    "grad-g9-grass-a1-secondary": "cael-surface-container",
+    "grad-g9-grass-a2": "cael-surface-low",
+    "grad-g9-grass-bg": "cael-surface-container",
+
+    "rosewater": "cael-on-surface",
+    "flamingo": "cael-secondary",
+    "pink": "cael-tertiary",
+    "mauve": "cael-primary",
+    "red": "cael-error",
+    "maroon": "cael-error-container",
+    "peach": "cael-secondary",
+    "yellow": "cael-tertiary",
+    "green": "cael-tertiary",
+    "teal": "cael-tertiary",
+    "sky": "cael-secondary",
+    "sapphire": "cael-primary-container",
+    "blue": "cael-primary",
+    "lavender": "cael-secondary",
+    "crust": "cael-surface-lowest",
+    "mantle": "cael-surface-low",
+    "base": "cael-surface",
+    "surface0": "cael-surface-container",
+    "surface1": "cael-surface-high",
+    "surface2": "cael-surface-highest",
+    "overlay0": "cael-outline-variant",
+    "overlay1": "cael-outline",
+    "overlay2": "cael-outline",
+    "text": "cael-on-surface",
+    "subtext0": "cael-on-surface-variant",
+    "subtext1": "cael-on-surface",
+
+    "accentColor": "cael-primary",
+    "secondaryAccentColor": "cael-secondary",
+    "primaryForeground": "cael-on-surface",
+    "primaryBackground": "cael-surface",
+    "secondaryBackground": "cael-surface-container",
+    "inactiveBackground": "cael-surface-high",
+    "panelForeground": "cael-on-surface",
+    "panelBackground": "cael-surface-low",
+    "toolbarBackground": "cael-surface-low",
+    "hoverBackground": "cael-surface-high",
+    "selectionBackground": "cael-primary-container",
+    "selectionForeground": "cael-on-primary-container",
+    "selectionInactiveBackground": "cael-surface-high",
+    "selectionInactiveForeground": "cael-on-surface",
+    "borderColor": "cael-outline-variant",
+    "separatorColor": "cael-divider",
+    "searchMatchBackground": "cael-primary-container",
+    "textFieldBackground": "cael-surface-high",
+    "gitLogBackground": "#a5cce50d",
+    "dragAndDropBackground": "#a5cce526",
+    "tabBackground": "cael-surface",
+    "onAccent": "cael-on-primary"
+  },
+  "ui": {
+    "*": {
+      "foreground": "primaryForeground",
+      "background": "primaryBackground",
+      "disabledBackground": "primaryBackground",
+      "inactiveBackground": "primaryBackground",
+      "selectionBackground": "selectionBackground",
+      "selectionForeground": "selectionForeground",
+      "selectionInactiveBackground": "selectionInactiveBackground",
+      "selectionInactiveForeground": "selectionInactiveForeground",
+      "separatorColor": "cael-divider",
+      "borderColor": "borderColor",
+      "focusColor": "accentColor",
+      "infoForeground": "subtext0"
+    },
+
+    "Islands": 1,
+    "Island": {
+      "arc": 18,
+      "arc.compact": 14,
+      "borderArcLength": 12,
+      "borderArcLength.compact": 10,
+      "borderWidth": 6,
+      "borderWidth.compact": 4,
+      "borderColor": "cael-surface-low",
+      "inactiveAlpha": 0.56,
+      "toolWindowAlpha": 0.2
+    },
+
+    "ActionButton": {
+      "hoverBackground": "hoverBackground",
+      "pressedBackground": "selectionInactiveBackground",
+      "hoverBorderColor": "borderColor"
+    },
+    "Banner": {
+      "errorBackground": "feedback-error-bg",
+      "errorBorderColor": "feedback-error-border",
+      "errorForeground": "primaryForeground",
+      "informativeBackground": "feedback-brand-bg",
+      "informativeBorderColor": "feedback-brand-border",
+      "informativeForeground": "primaryForeground",
+      "warningBackground": "feedback-warning-bg",
+      "warningBorderColor": "feedback-warning-border",
+      "warningForeground": "primaryForeground",
+      "arc": 12,
+      "arc.compact": 8
+    },
+    "Bookmark": {
+      "Mnemonic": {
+        "iconBackground": "secondaryBackground",
+        "iconBorderColor": "accentColor",
+        "iconForeground": "selectionForeground"
+      },
+      "MnemonicAssigned": {
+        "background": "selectionBackground",
+        "borderColor": "secondaryAccentColor",
+        "foreground": "selectionForeground"
+      },
+      "MnemonicAvailable": {},
+      "MnemonicCurrent": {
+        "background": "selectionBackground",
+        "borderColor": "accentColor",
+        "foreground": "selectionForeground"
+      },
+      "iconBackground": "accentColor"
+    },
+    "Borders": {
+      "ContrastBorderColor": "cael-divider",
+      "color": "cael-divider"
+    },
+    "Button": {
+      "arc": 12,
+      "arc.compact": 9,
+      "background": "secondaryBackground",
+      "startBackground": "secondaryBackground",
+      "endBackground": "secondaryBackground",
+      "startBorderColor": "borderColor",
+      "endBorderColor": "borderColor",
+      "foreground": "primaryForeground",
+      "focusedBorderColor": "accentColor",
+      "disabledBorderColor": "borderColor",
+      "default": {
+        "startBackground": "accentColor",
+        "endBackground": "accentColor",
+        "startBorderColor": "accentColor",
+        "endBorderColor": "accentColor",
+        "focusColor": "accentColor",
+        "focusedBorderColor": "accentColor",
+        "foreground": "onAccent"
+      }
+    },
+    "CheckBox": {
+      "background": "panelBackground"
+    },
+    "ComboBox": {
+      "ArrowButton": {
+        "background": "secondaryBackground",
+        "disabledIconColor": "text-disabled",
+        "iconColor": "accentColor",
+        "nonEditableBackground": "secondaryBackground"
+      },
+      "modifiedItemForeground": "accentColor",
+      "nonEditableBackground": "secondaryBackground",
+      "selectionBackground": "cael-menu-hover"
+    },
+    "CompletionPopup": {
+      "foreground": "primaryForeground",
+      "matchForeground": "accentColor",
+      "selectionBackground": "cael-menu-hover",
+      "selectionForeground": "primaryForeground",
+      "selectionInactiveBackground": "selectionInactiveBackground"
+    },
+    "Component": {
+      "arc": 10,
+      "arc.compact": 8,
+      "borderColor": "borderColor",
+      "disabledBorderColor": "selectionInactiveBackground",
+      "errorFocusColor": "red",
+      "focusColor": "accentColor",
+      "focusedBorderColor": "selectionBackground",
+      "iconColor": "primaryForeground",
+      "inactiveErrorFocusColor": "red",
+      "inactiveWarningFocusColor": "yellow",
+      "warningFocusColor": "yellow",
+      "infoForeground": "subtext0"
+    },
+    "Counter": {
+      "background": "accentColor",
+      "foreground": "onAccent"
+    },
+    "DefaultTabs": {
+      "background": "panelBackground",
+      "hoverBackground": "primaryBackground",
+      "underlinedTabBackground": "tabBackground"
+    },
+    "DragAndDrop": {
+      "borderColor": "selectionBackground",
+      "rowBackground": "dragAndDropBackground",
+      "areaForeground": "primaryForeground",
+      "areaBackground": "panelBackground",
+      "areaBorderColor": "accentColor"
+    },
+    "Editor": {
+      "Toolbar": {
+        "borderColor": "separatorColor"
+      },
+      "background": "primaryBackground",
+      "shortcutForeground": "accentColor",
+      "SearchField": {
+        "background": "textFieldBackground",
+        "borderColor": "borderColor"
+      }
+    },
+    "EditorPane": {
+      "splitBorder": "separatorColor"
+    },
+    "EditorTabs": {
+      "background": "cael-surface",
+      "hoverBackground": "tab-bg-hovered",
+      "underTabsBorderColor": "cael-divider",
+      "underlineColor": "accentColor",
+      "underlinedTabBackground": "cael-surface",
+      "inactiveUnderlinedTabBackground": "cael-surface-low",
+      "underlinedBorderColor": "accentColor",
+      "inactiveUnderlinedTabBorderColor": "borderColor",
+      "inactiveColoredFileBackground": "tab-file-color-mask-bg",
+      "unselectedBlend": 0.9,
+      "underlineArc": 4,
+      "underlineHeight": 3
+    },
+    "FileColor": {
+      "Gray": "cael-surface-low",
+      "Blue": "cael-primary-container",
+      "Green": "cael-tertiary-container",
+      "Orange": "cael-secondary-container",
+      "Rose": "cael-error-container",
+      "Violet": "cael-primary-container",
+      "Yellow": "cael-secondary-container"
+    },
+    "Label": {
+      "background": "panelBackground",
+      "selectedForeground": "selectionForeground"
+    },
+    "Link": {
+      "activeForeground": "accentColor",
+      "hoverForeground": "accentColor",
+      "pressedForeground": "secondaryAccentColor",
+      "visitedForeground": "secondaryAccentColor"
+    },
+    "List": {
+      "Button": {
+        "leftRightInset": 8,
+        "separatorInset": 4,
+        "hoverBackground": "hoverBackground"
+      },
+      "background": "panelBackground",
+      "border": "4,8,4,8",
+      "hoverBackground": "hoverBackground",
+      "rowHeight": "26",
+      "selectionBackground": "selectionBackground",
+      "selectionForeground": "selectionForeground",
+      "selectionInactiveBackground": "selectionInactiveBackground",
+      "Selection.arc": 8
+    },
+    "MainMenu": {
+      "selectionForeground": "primaryForeground",
+      "selectionBackground": "cael-menu-hover",
+      "transparentSelectionBackground": "cael-menu-hover"
+    },
+    "MainToolbar": {
+      "Dropdown": {
+        "hoverBackground": "hoverBackground",
+        "maxWidth": 350,
+        "pressedBackground": "selectionInactiveBackground"
+      },
+      "Icon": {
+        "hoverBackground": "hoverBackground",
+        "insets": "5,5,5,5",
+        "pressedBackground": "selectionInactiveBackground"
+      },
+      "borderColor": "transparent",
+      "background": "toolbarBackground",
+      "inactiveBackground": "panelBackground"
+    },
+    "MainWindow": {
+      "background": "toolbarBackground",
+      "Tab": {
+        "background": "toolbarBackground",
+        "borderColor": "toolbarBackground",
+        "selectedBackground": "primaryBackground",
+        "selectedForeground": "primaryForeground",
+        "hoverBackground": "hoverBackground",
+        "selectedInactiveBackground": "panelBackground",
+        "separatorColor": "separatorColor"
+      }
+    },
+    "MemoryIndicator": {
+      "allocatedBackground": "surface0",
+      "usedBackground": "surface1"
+    },
+    "Notification": {
+      "ToolWindow": {
+        "errorBackground": "panelBackground",
+        "errorBorderColor": "red",
+        "errorForeground": "primaryForeground",
+        "informativeBackground": "panelBackground",
+        "informativeBorderColor": "secondaryAccentColor",
+        "informativeForeground": "primaryForeground",
+        "warningBackground": "panelBackground",
+        "warningBorderColor": "peach",
+        "warningForeground": "primaryForeground"
+      },
+      "background": "panelBackground",
+      "borderColor": "borderColor",
+      "errorBackground": "panelBackground",
+      "errorBorderColor": "red",
+      "errorForeground": "primaryForeground"
+    },
+    "NotificationsToolwindow": {
+      "newNotification": {
+        "background": "panelBackground",
+        "hoverBackground": "hoverBackground"
+      }
+    },
+    "Panel": {
+      "foreground": "panelForeground",
+      "background": "panelBackground"
+    },
+    "PasswordField": {
+      "background": "secondaryBackground"
+    },
+    "Plugins": {
+      "Button": {
+        "installBackground": "panelBackground",
+        "installBorderColor": "accentColor",
+        "installFillBackground": "accentColor",
+        "installFillForeground": "onAccent",
+        "installFocusedBackground": "panelBackground",
+        "installForeground": "accentColor",
+        "updateBackground": "accentColor",
+        "updateBorderColor": "accentColor",
+        "updateForeground": "onAccent"
+      },
+      "SearchField": {
+        "background": "panelBackground"
+      },
+      "SectionHeader": {
+        "foreground": "primaryForeground"
+      },
+      "Tab": {
+        "hoverBackground": "hoverBackground",
+        "selectedBackground": "selectionBackground",
+        "selectedForeground": "selectionForeground"
+      },
+      "borderColor": "borderColor",
+      "hoverBackground": "hoverBackground",
+      "lightSelectionBackground": "selectionBackground",
+      "tagBackground": "panelBackground"
+    },
+    "Menu": {
+      "background": "popup-bg",
+      "foreground": "primaryForeground",
+      "selectionBackground": "cael-menu-hover",
+      "selectionForeground": "primaryForeground",
+      "acceleratorForeground": "text-secondary",
+      "acceleratorSelectionForeground": "primaryForeground",
+      "disabledForeground": "text-disabled",
+      "disabledBackground": "popup-bg",
+      "borderColor": "popup-border",
+      "borderWidth": 1,
+      "borderCornerRadius": 12,
+      "separatorColor": "separatorColor",
+      "Selection.arc": 8
+    },
+    "MenuItem": {
+      "background": "popup-bg",
+      "foreground": "primaryForeground",
+      "selectionBackground": "cael-menu-hover",
+      "selectionForeground": "primaryForeground",
+      "acceleratorForeground": "text-secondary",
+      "acceleratorSelectionForeground": "primaryForeground",
+      "disabledForeground": "text-disabled",
+      "disabledBackground": "popup-bg"
+    },
+    "PopupMenu": {
+      "background": "popup-bg",
+      "borderColor": "popup-border",
+      "separatorColor": "cael-divider",
+      "borderWidth": 1,
+      "borderCornerRadius": 12,
+      "selectionBackground": "cael-menu-hover",
+      "selectionForeground": "primaryForeground",
+      "Selection.arc": 8
+    },
+    "Popup": {
+      "Advertiser": {
+        "background": "popup-bg",
+        "fontSizeOffset": -1,
+        "foreground": "text-secondary"
+      },
+      "Header": {
+        "activeBackground": "popup-bg",
+        "inactiveBackground": "popup-bg"
+      },
+      "background": "popup-bg",
+      "foreground": "primaryForeground",
+      "selectionBackground": "cael-menu-hover",
+      "selectionForeground": "primaryForeground",
+      "selectionInactiveBackground": "selectionInactiveBackground",
+      "selectionInfoForeground": "primaryForeground",
+      "matchSelectionForeground": "primaryForeground",
+      "borderColor": "popup-border",
+      "borderWidth": 1,
+      "innerBorderColor": "cael-divider",
+      "inactiveBorderColor": "popup-border",
+      "paintBorder": true,
+      "separatorColor": "separatorColor",
+      "Toolbar": {
+        "background": "popup-bg",
+        "borderColor": "cael-divider"
+      },
+      "Selection.arc": 8,
+      "Selection.innerInsets": "2,2,2,2",
+      "Selection.leftRightInset": 4
+    },
+    "ProgressBar": {
+      "failedColor": "red",
+      "failedEndColor": "maroon",
+      "indeterminateEndColor": "secondaryAccentColor",
+      "indeterminateStartColor": "accentColor",
+      "passedColor": "green",
+      "passedEndColor": "teal",
+      "progressColor": "accentColor",
+      "trackColor": "selectionInactiveBackground"
+    },
+    "RadioButton": {
+      "background": "panelBackground"
+    },
+    "RunWidget": {
+      "background": "secondaryBackground",
+      "foreground": "text",
+      "iconColor": "primaryForeground",
+      "pressedBackground": "green",
+      "separatorColor": "separatorColor",
+      "stopBackground": "red"
+    },
+    "ScrollBar": {
+      "thumbBorderColor": "cael-outline-variant",
+      "thumbColor": "cael-outline-variant",
+      "hoverThumbColor": "cael-outline",
+      "hoverThumbBorderColor": "cael-outline",
+      "Mac": {
+        "thumbBorderColor": "cael-outline-variant",
+        "thumbColor": "cael-outline-variant",
+        "hoverThumbColor": "cael-outline",
+        "hoverThumbBorderColor": "cael-outline"
+      }
+    },
+    "SearchEverywhere": {
+      "SearchField": {
+        "background": "secondaryBackground"
+      },
+      "Tab": {
+        "selectedBackground": "cael-menu-hover",
+        "selectedForeground": "primaryForeground"
+      }
+    },
+    "SearchMatch": {
+      "endBackground": "searchMatchBackground",
+      "startBackground": "searchMatchBackground"
+    },
+    "SegmentedButton": {
+      "focusedSelectedButtonColor": "selectionBackground",
+      "selectedButtonColor": "selectionBackground",
+      "selectedEndBorderColor": "selectionBackground",
+      "selectedStartBorderColor": "selectionBackground"
+    },
+    "Separator": {
+      "separatorColor": "separatorColor"
+    },
+    "SidePanel": {
+      "background": "panelBackground"
+    },
+    "Slider": {
+      "background": "panelBackground"
+    },
+    "StatusBar": {
+      "Breadcrumbs": {
+        "chevronInset": 0
+      },
+      "borderColor": "cael-divider",
+      "background": "toolbarBackground",
+      "hoverBackground": "hoverBackground"
+    },
+    "TabbedPane": {
+      "background": "panelBackground",
+      "contentAreaColor": "borderColor",
+      "focusColor": "selectionBackground",
+      "hoverColor": "hoverBackground",
+      "tabHeight": 40,
+      "tabSelectionArc": 10,
+      "underlineColor": "accentColor"
+    },
+    "Table": {
+      "gridColor": "cael-divider",
+      "hoverBackground": "selectionBackground",
+      "selectionBackground": "selectionBackground",
+      "selectionForeground": "selectionForeground",
+      "lightSelectionBackground": "selectionInactiveBackground",
+      "Selection.arc": 8
+    },
+    "TableHeader": {
+      "bottomSeparatorColor": "cael-divider"
+    },
+    "TextArea": {
+      "background": "panelBackground"
+    },
+    "TextField": {
+      "background": "textFieldBackground",
+      "selectionBackground": "selectionBackground"
+    },
+    "ToggleButton": {
+      "buttonColor": "primaryForeground",
+      "offBackground": "selectionInactiveBackground",
+      "offForeground": "hoverBackground",
+      "onBackground": "accentColor",
+      "onForeground": "onAccent"
+    },
+    "ToolBar": {
+      "background": "panelBackground",
+      "borderHandleColor": "accentColor"
+    },
+    "ToolWindow": {
+      "Button": {
+        "hoverBackground": "hoverBackground",
+        "selectedBackground": "selectionBackground",
+        "selectedForeground": "selectionForeground"
+      },
+      "Header": {
+        "background": "panelBackground",
+        "borderColor": "cael-divider",
+        "inactiveBackground": "panelBackground"
+      },
+      "HeaderTab": {
+        "hoverBackground": "hoverBackground",
+        "inactiveUnderlineColor": "cael-divider",
+        "underlineColor": "accentColor"
+      },
+      "Stripe": {
+        "borderColor": "transparent",
+        "background": "toolbarBackground"
+      },
+      "background": "panelBackground"
+    },
+    "Tree": {
+      "background": "panelBackground",
+      "border": "4,8,4,8",
+      "foreground": "primaryForeground",
+      "hoverBackground": "hoverBackground",
+      "modifiedItemForeground": "accentColor",
+      "rowHeight": 26,
+      "selectionBackground": "selectionBackground",
+      "selectionForeground": "selectionForeground",
+      "selectionInactiveBackground": "selectionInactiveBackground",
+      "Selection.arc": 8
+    },
+    "UiDesigner": {
+      "Panel.background": "panelBackground",
+      "Preview.background": "panelBackground"
+    },
+    "ValidationTooltip": {
+      "errorBackground": "panelBackground",
+      "errorBorderColor": "red",
+      "warningBackground": "panelBackground",
+      "warningBorderColor": "secondaryAccentColor"
+    },
+    "VersionControl": {
+      "FileHistory": {
+        "Commit": {
+          "selectedBranchBackground": "secondaryBackground"
+        }
+      },
+      "GitLog": {
+        "headIconColor": "accentColor",
+        "localBranchIconColor": "green",
+        "otherIconColor": "teal",
+        "remoteBranchIconColor": "secondaryAccentColor",
+        "tagIconColor": "accentColor"
+      },
+      "Log": {
+        "Commit": {
+          "currentBranchBackground": "gitLogBackground",
+          "hoveredBackground": "hoverBackground",
+          "selectionInactiveBackground": "selectionInactiveBackground"
+        }
+      },
+      "RefLabel": {
+        "foreground": "primaryForeground"
+      }
+    },
+    "WelcomeScreen": {
+      "Projects": {
+        "actions": {
+          "background": "hoverBackground"
+        },
+        "background": "hoverBackground",
+        "selectionBackground": "selectionBackground",
+        "selectionInactiveBackground": "selectionInactiveBackground"
+      },
+      "SidePanel": {
+        "background": "panelBackground"
+      },
+      "separatorColor": "separatorColor"
+    }
+  },
+  "icons": {
+    "ColorPalette": {
+      "Actions.Blue": "cael-primary",
+      "Actions.Green": "cael-tertiary",
+      "Actions.Grey": "cael-outline",
+      "Actions.GreyInline": "cael-primary",
+      "Actions.GreyInline.Dark": "cael-primary",
+      "Actions.Red": "cael-error",
+      "Actions.Yellow": "cael-secondary",
+      "Objects.BlackText": "cael-surface",
+      "Objects.Blue": "cael-primary",
+      "Objects.Green": "cael-tertiary",
+      "Objects.Grey": "cael-outline",
+      "Objects.Pink": "cael-secondary",
+      "Objects.Purple": "cael-primary",
+      "Objects.Red": "cael-error",
+      "Objects.RedStatus": "cael-error",
+      "Objects.Yellow": "cael-secondary",
+      "Objects.YellowDark": "cael-secondary-container",
+      "Checkbox.Background.Default": "cael-surface-container",
+      "Checkbox.Background.Disabled": "cael-surface-low",
+      "Checkbox.Background.Selected": "cael-primary",
+      "Checkbox.Border.Default": "cael-outline",
+      "Checkbox.Border.Disabled": "cael-outline-variant",
+      "Checkbox.Border.Selected": "cael-primary",
+      "Checkbox.Foreground.Disabled": "cael-outline",
+      "Checkbox.Foreground.Selected": "cael-on-primary",
+      "Tree.iconColor": "cael-on-surface-variant"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+[mgr]
+cwd = { fg = "#a5cce5" }
+
+hovered         = { fg = "#dfe6ed", bg = "#1f272c" }
+preview_hovered = { underline = true }
+
+find_keyword  = { fg = "#b6c9d8", italic = true }
+find_position = { fg = "#d9deff", bg = "reset", italic = true }
+
+marker_copied   = { fg = "#d9deff", bg = "#d9deff" }
+marker_cut      = { fg = "#fa746f", bg = "#fa746f" }
+marker_marked   = { fg = "#a5cce5", bg = "#a5cce5" }
+marker_selected = { fg = "#b6c9d8", bg = "#b6c9d8" }
+
+tab_active   = { fg = "#1c4459", bg = "#a5cce5" }
+tab_inactive = { fg = "#a4acb3", bg = "#1f272c" }
+
+border_symbol = "│"
+border_style  = { fg = "#6f767c" }
+
+[status]
+separator_style = { fg = "#1f272c", bg = "#1f272c" }
+
+mode_normal_main = { fg = "#1c4459", bg = "#a5cce5", bold = true }
+mode_normal_alt  = { fg = "#a5cce5", bg = "#1f272c" }
+mode_select_main = { fg = "#30424e", bg = "#b6c9d8", bold = true }
+mode_select_alt  = { fg = "#b6c9d8", bg = "#1f272c" }
+mode_unset_main  = { fg = "#454e75", bg = "#d9deff", bold = true }
+mode_unset_alt   = { fg = "#d9deff", bg = "#1f272c" }
+
+progress_label  = { fg = "#dfe6ed", bold = true }
+progress_normal = { fg = "#a5cce5", bg = "#1f272c" }
+progress_error  = { fg = "#fa746f", bg = "#1f272c" }
+
+[input]
+border = { fg = "#a5cce5" }
+
+[select]
+border = { fg = "#a5cce5" }
+active = { fg = "#b6c9d8" }
+
+[tasks]
+border  = { fg = "#a5cce5" }
+hovered = { underline = true }
+
+[which]
+cand            = { fg = "#b6c9d8" }
+rest            = { fg = "#a4acb3" }
+desc            = { fg = "#a5cce5" }
+separator_style = { fg = "#6f767c" }
+
+[notify]
+title_info  = { fg = "#a5cce5" }
+title_warn  = { fg = "#d9deff" }
+title_error = { fg = "#fa746f" }

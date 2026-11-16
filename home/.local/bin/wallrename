@@ -1,0 +1,547 @@
+#!/usr/bin/env python3
+"""
+Analyze images and rename them with either NVIDIA NIM or Google Gemini.
+Uses only the Python standard library.
+
+Examples:
+    wallrename
+    wallrename --provider nvidia
+    wallrename --provider google --model gemini-2.5-flash
+    wallrename --api-key YOUR_API_KEY --save-keys
+"""
+
+import argparse
+import base64
+import getpass
+import json
+import mimetypes
+import os
+import re
+import sys
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+# --- Configuration & Constants ---
+CONFIG_FILE = Path.home() / ".wallpaper_renamer.json"
+DEFAULT_DIR = Path.home() / "Pictures" / "Wallpapers"
+
+DEFAULT_NVIDIA_MODEL = "meta/llama-3.2-11b-vision-instruct"
+DEFAULT_GOOGLE_MODEL = "gemini-2.5-flash"
+
+NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1/chat/completions"
+GOOGLE_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"
+
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}
+
+# --- Dynamic Prompts ---
+LLAMA_PROMPT = """
+You are a visual classification assistant that creates short, searchable
+filenames for wallpapers.
+
+Your task is NOT to write a caption.
+Your task is NOT to describe the entire image.
+
+Your task is to identify the most useful concepts a human would use to
+recognize this wallpaper later, then convert them into one concise filename.
+
+DECISION PROCESS
+
+1. Identify the primary subject or scene.
+2. Identify the most distinctive setting, relationship, action, landmark,
+   or environment.
+3. Combine only the most important concepts needed to identify the image.
+4. Include an art style such as anime, illustration, pixel-art, or 3d only
+   when it is clearly visible and helps distinguish the image.
+5. Prefer specific visible concepts over vague concepts.
+6. When uncertain, use the more general term.
+7. Never infer details that are not clearly visible.
+8. Ignore minor objects and decorative details.
+9. Never use color words as descriptors.
+10. Do not describe the whole image.
+
+PRIORITY
+
+primary subject
+→ distinctive setting, action, or relationship
+→ distinctive environment or landmark
+→ art style when useful
+
+The goal is to create the shortest useful label that identifies the wallpaper.
+
+EXAMPLES
+
+girl under an umbrella → girl-umbrella
+mountains beside a lake → mountain-lake
+futuristic city street → neon-city
+temple surrounded by cherry blossoms → temple-cherry-blossoms
+anime character beneath a cherry tree → anime-girl-cherry-tree
+abstract flowing shapes → abstract-waves
+
+OUTPUT REQUIREMENTS
+
+Return ONLY the filename.
+
+Do not explain your choice.
+Do not output alternatives.
+Do not output quotes.
+Do not output a sentence.
+Do not output punctuation other than hyphens.
+Do not output a file extension.
+
+The filename must:
+
+- contain 2 to 4 words
+- use lowercase only
+- use hyphens between words
+- contain only letters, numbers, and hyphens
+- never contain: wallpaper, image, picture, photo, background
+- never contain a color word
+- never contain generic adjectives such as beautiful, amazing, cool,
+  stunning, epic
+- never contain multiple minor details
+- never describe every visible object
+
+Only use concepts that are clearly visible in the image.
+
+Before returning the answer, verify internally that:
+
+- the primary subject or scene is represented
+- every concept is clearly visible
+- the filename is specific enough to distinguish the image
+- there are exactly 2 to 4 words
+- it is lowercase
+- it contains only letters, numbers, and hyphens
+- it contains no banned words
+- it contains no color words
+
+Return the filename now.
+"""
+
+
+
+DEEPSEEK_PROMPT = """Analyze this image and return a concise filename identifying the main subject or theme.
+        Rules: Output ONLY the filename. Use 2-4 words. All lowercase. Separate words with hyphens (-).
+        Use only letters, numbers, and hyphens. Do not include extensions. Do not use words like 'wallpaper', 'image', 'color'.
+        Do not include pleasantries. Example: mountain-lake-sunset"""
+
+
+DEFAULT_PROMPT = """
+You are an expert image-captioning assistant. Analyze the image and generate a SHORT, descriptive filename.
+        1. Identify the main subject/theme.
+        2. Keep it 2-4 words, separated by hyphens (-).
+        3. Output ONLY the filename. No extra text, no quotes, no file extensions.
+        4. All lowercase. Only letters, numbers, and hyphens.
+        5. Banned words: 'wallpaper', 'image', 'picture', 'photo', 'background'.
+        Example: anime-girl-umbrella
+"""
+
+
+PROMPTS = {
+    "deepseek": DEEPSEEK_PROMPT,
+    "llama": LLAMA_PROMPT,
+    "default": DEFAULT_PROMPT,
+}
+
+
+# Retry-specific instruction.
+# Appended only if the model returned something that failed validation.
+RETRY_INSTRUCTION = """
+
+Your previous response was invalid.
+
+Return ONLY a valid filename.
+It must contain exactly 2 to 4 lowercase words separated by hyphens.
+No explanation.
+No quotes.
+No punctuation other than hyphens.
+No banned words.
+No color words.
+"""
+
+
+def get_best_prompt(model_name: str) -> str:
+    """Select the best prompt strategy based on the model name."""
+    name = model_name.lower()
+    if "deepseek" in name:
+        return PROMPTS["deepseek"]
+    if "llama" in name:
+        return PROMPTS["llama"]
+    return PROMPTS["default"]
+
+
+# --- Config Management ---
+def load_config() -> dict:
+    if CONFIG_FILE.exists():
+        try:
+            return json.loads(CONFIG_FILE.read_text())
+        except Exception:
+            return {}
+    return {}
+
+
+def save_config(config: dict) -> None:
+    try:
+        CONFIG_FILE.write_text(json.dumps(config, indent=4))
+        print(f"[*] Configuration and keys saved to {CONFIG_FILE}")
+    except Exception as e:
+        print(f"[!] Failed to save config: {e}")
+
+
+# --- Helper Functions ---
+def sanitize_name(text: str | None) -> str:
+    if not text:
+        return ""
+
+    # Clean text into a hyphen-separated string
+    text = text.strip().splitlines()[0].replace("`", "").lower()
+    text = re.sub(r"[^a-z0-9-]+", "-", text)
+    text = re.sub(r"-{2,}", "-", text).strip("-")
+
+    if not text:
+        return ""
+
+    parts = text.split("-")
+    banned = {"wallpaper", "image", "picture", "photo", "background"}
+
+    # Reject if it exceeds 4 words or contains any banned word
+    if len(parts) > 4 or any(part in banned for part in parts):
+        return ""
+
+    return "-".join(parts)
+
+
+def image_mime_type(image_path: Path) -> str:
+    mime = mimetypes.guess_type(image_path.name)[0]
+    if mime:
+        return mime
+    extension = image_path.suffix.lower().lstrip(".")
+    if extension == "jpg":
+        extension = "jpeg"
+    return f"image/{extension}"
+
+
+# --- API Interaction ---
+def nvidia_generate_name(
+    image_path: Path,
+    api_key: str,
+    model: str,
+    prompt: str,
+    max_retries: int = 4,
+) -> str:
+    data = image_path.read_bytes()
+
+    encoded_image = base64.b64encode(data).decode("ascii")
+    mime = image_mime_type(image_path)
+
+    current_prompt = prompt
+
+    payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    # IMPORTANT:
+                    # Put the image BEFORE the text for Llama 3.2 Vision.
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:{mime};base64,{encoded_image}"
+                        },
+                    },
+                    {
+                        "type": "text",
+                        "text": current_prompt,
+                    },
+                ],
+            }
+        ],
+        "temperature": 0.0,
+        "max_tokens": 16,
+    }
+
+    body = json.dumps(payload).encode("utf-8")
+
+    for attempt in range(max_retries):
+        request = urllib.request.Request(
+            NVIDIA_API_URL,
+            data=body,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+            },
+            method="POST",
+        )
+
+        try:
+            with urllib.request.urlopen(request, timeout=120) as response:
+                result = json.loads(response.read().decode("utf-8"))
+
+                choices = result.get("choices", [])
+                if not choices:
+                    raise RuntimeError("NVIDIA response contained no choices")
+
+                content = (
+                    choices[0]
+                    .get("message", {})
+                    .get("content", "")
+                    .strip()
+                )
+
+                name = sanitize_name(content)
+
+                if name:
+                    return name
+
+                # Model returned something, but sanitizer rejected it.
+                # Retry so a malformed response doesn't kill the whole job.
+                current_prompt = prompt + RETRY_INSTRUCTION
+
+        except urllib.error.HTTPError as error:
+            if error.code in {429, 500, 502, 503, 504}:
+                if attempt < max_retries - 1:
+                    time.sleep(2 ** (attempt + 1))
+                    continue
+
+            raise RuntimeError(
+                f"NVIDIA HTTP {error.code}"
+            ) from error
+
+        except Exception:
+            if attempt < max_retries - 1:
+                time.sleep(2 ** (attempt + 1))
+                continue
+
+            raise
+
+    raise RuntimeError("NVIDIA request failed")
+
+
+def google_generate_name(
+    image_path: Path, api_key: str, model: str, prompt: str, max_retries: int = 4
+) -> str:
+    data = image_path.read_bytes()
+    encoded_image = base64.b64encode(data).decode("ascii")
+    mime = image_mime_type(image_path)
+    url = f"{GOOGLE_API_URL}/{model}:generateContent?key={api_key}"
+
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt},
+                    {"inline_data": {"mime_type": mime, "data": encoded_image}},
+                ],
+            }
+        ],
+    }
+
+    body = json.dumps(payload).encode("utf-8")
+    for attempt in range(max_retries):
+        request = urllib.request.Request(
+            url,
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=120) as response:
+                result = json.loads(response.read().decode("utf-8"))
+                candidates = result.get("candidates") or []
+                parts = candidates[0].get("content", {}).get("parts", [])
+                content = "".join(
+                    p.get("text", "") for p in parts if isinstance(p, dict)
+                )
+                name = sanitize_name(content)
+                if name:
+                    return name
+        except urllib.error.HTTPError as error:
+            if error.code in {429, 500, 502, 503, 504} and attempt < max_retries - 1:
+                time.sleep(2 ** (attempt + 1))
+                continue
+            raise RuntimeError(f"Google HTTP {error.code}") from error
+        except Exception:
+            if attempt < max_retries - 1:
+                time.sleep(2 ** (attempt + 1))
+                continue
+            raise
+    raise RuntimeError("Google request failed")
+
+
+# --- Core Logic ---
+def unique_target(directory: Path, basename: str, suffix: str, current: Path) -> Path:
+    candidate = directory / f"{basename}{suffix}"
+    number = 2
+    while candidate.exists() and candidate.resolve() != current.resolve():
+        candidate = directory / f"{basename}-{number}{suffix}"
+        number += 1
+    return candidate
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Rename images using NVIDIA NIM or Google Gemini."
+    )
+    parser.add_argument(
+        "-d",
+        "--dir",
+        default=str(DEFAULT_DIR),
+        help=f"folder to scan (default: {DEFAULT_DIR})",
+    )
+    parser.add_argument(
+        "--provider",
+        choices={"auto", "nvidia", "google"},
+        default="auto",
+        help="AI provider (default: auto)",
+    )
+    parser.add_argument("--api-key", default=None, help="Generic API key override")
+    parser.add_argument("--nvidia-api-key", default=None, help="NVIDIA API key")
+    parser.add_argument("--google-api-key", default=None, help="Google Gemini API key")
+    parser.add_argument("--model", default=None, help="Override default model")
+    parser.add_argument(
+        "--delay", type=float, default=1.0, help="seconds to wait between requests"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="preview changes without renaming"
+    )
+    parser.add_argument(
+        "--auto", action="store_true", help="skip the initial confirmation prompt"
+    )
+    parser.add_argument(
+        "--save-keys",
+        action="store_true",
+        help="Save entered API keys to local config file",
+    )
+    args = parser.parse_args()
+
+    directory = Path(args.dir).expanduser()
+    if not directory.is_dir():
+        print(f"Error: '{directory}' is not a valid directory.")
+        return 1
+
+    # Load persistent config
+    config = load_config()
+    conf_nvidia_key = config.get("NVIDIA_API_KEY")
+    conf_google_key = config.get("GEMINI_API_KEY")
+
+    # Resolve Provider
+    provider = args.provider
+    if provider == "auto":
+        if args.nvidia_api_key or os.environ.get("NVIDIA_API_KEY") or conf_nvidia_key:
+            provider = "nvidia"
+        elif args.google_api_key or os.environ.get("GEMINI_API_KEY") or conf_google_key:
+            provider = "google"
+        else:
+            try:
+                answer = (
+                    input("No API keys found. Choose provider [nvidia/google]: ")
+                    .strip()
+                    .lower()
+                )
+                provider = answer if answer in {"nvidia", "google"} else "google"
+            except KeyboardInterrupt:
+                return 1
+
+    # Resolve Model & Prompt
+    model = args.model
+    if not model:
+        model = DEFAULT_NVIDIA_MODEL if provider == "nvidia" else DEFAULT_GOOGLE_MODEL
+    prompt_to_use = get_best_prompt(model)
+
+    # Resolve API Key
+    api_key = ""
+    if provider == "nvidia":
+        api_key = (
+            args.nvidia_api_key
+            or args.api_key
+            or os.environ.get("NVIDIA_API_KEY")
+            or conf_nvidia_key
+        )
+        if not api_key:
+            api_key = getpass.getpass("Enter your NVIDIA API key: ").strip()
+            if api_key and args.save_keys:
+                config["NVIDIA_API_KEY"] = api_key
+                save_config(config)
+    else:
+        api_key = (
+            args.google_api_key
+            or args.api_key
+            or os.environ.get("GEMINI_API_KEY")
+            or conf_google_key
+        )
+        if not api_key:
+            api_key = getpass.getpass("Enter your Google Gemini API key: ").strip()
+            if api_key and args.save_keys:
+                config["GEMINI_API_KEY"] = api_key
+                save_config(config)
+
+    if not api_key:
+        print("Error: missing API key.")
+        return 1
+
+    images = sorted(
+        p
+        for p in directory.iterdir()
+        if p.is_file() and p.suffix.lower() in IMAGE_EXTENSIONS
+    )
+    if not images:
+        print(f"No images found in {directory}.")
+        return 0
+
+    print(f"[*] Found {len(images)} image(s) in {directory}")
+    print(
+        f"[*] Provider: {provider.upper()} | Model: {model} | Delay: {args.delay}s {'| DRY RUN' if args.dry_run else ''}"
+    )
+
+    if not args.auto and not args.dry_run:
+        try:
+            if input("Start renaming? [y/N] ").strip().lower() not in {"y", "yes"}:
+                return 0
+        except KeyboardInterrupt:
+            return 1
+
+    renamed, failed, skipped = 0, 0, 0
+
+    for index, path in enumerate(images, 1):
+        prefix = f"[{index}/{len(images)}] {path.name}"
+        try:
+            if provider == "nvidia":
+                basename = nvidia_generate_name(path, api_key, model, prompt_to_use)
+            else:
+                basename = google_generate_name(path, api_key, model, prompt_to_use)
+        except Exception as error:
+            print(f"{prefix} -> FAILED ({error})")
+            failed += 1
+            if index < len(images):
+                time.sleep(args.delay)
+            continue
+
+        target = unique_target(directory, basename, path.suffix.lower(), path)
+        if target == path:
+            print(f"{prefix} -> already named '{basename}' (skipped)")
+            skipped += 1
+        elif args.dry_run:
+            print(f"{prefix} -> {target.name}")
+            renamed += 1
+        else:
+            try:
+                path.rename(target)
+                print(f"{prefix} -> {target.name}")
+                renamed += 1
+            except OSError as error:
+                print(f"{prefix} -> rename failed ({error})")
+                failed += 1
+
+        if index < len(images):
+            time.sleep(args.delay)
+
+    print(
+        f"\n{'DRY RUN - ' if args.dry_run else ''}Done: {renamed} renamed, {skipped} skipped, {failed} failed."
+    )
+    return 0 if failed == 0 else 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

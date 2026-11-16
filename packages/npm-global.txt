@@ -1,0 +1,12 @@
+defuddle
+docx
+knap
+node-gyp
+nopt
+npm
+pptxgenjs
+react
+react-dom
+react-icons
+semver
+sharp

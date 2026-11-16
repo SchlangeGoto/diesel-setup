@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""Close a Todoist task from the Caelestia Agenda tab."""
+
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+import urllib.request
+from pathlib import Path
+
+HOME = Path.home()
+SECRET = HOME / ".config/caelestia/secrets" / "todoist"
+API = "https://api.todoist.com/api/v1"
+
+
+def token() -> str:
+    env = os.environ.get("TODOIST_TOKEN", "").strip()
+    if env:
+        return env
+
+    for path in (SECRET, HOME / ".config/untis/config.json"):
+        try:
+            if path == HOME / ".config/untis/config.json":
+                return str(json.loads(path.read_text(encoding="utf-8"))["todoist"]["token"]).strip()
+            value = path.read_text(encoding="utf-8").strip()
+            if value:
+                return value
+        except Exception:
+            continue
+
+    try:
+        proc = subprocess.run(
+            [
+                "ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5", "sync",
+                "python3 -c \"import json;print(json.load(open('/var/lib/sync/.config/eduvidual-sync/config.json'))['todoist']['token'])\"",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            return proc.stdout.strip()
+    except Exception:
+        pass
+
+    raise RuntimeError("Todoist API token not found")
+
+
+def main() -> int:
+    if len(sys.argv) != 2 or not sys.argv[1].strip():
+        print("usage: agenda-todoist-close <task-id>", file=sys.stderr)
+        return 64
+
+    task_id = sys.argv[1].strip()
+    request = urllib.request.Request(
+        f"{API}/tasks/{task_id}/close",
+        method="POST",
+        headers={
+            "Authorization": "Bearer " + token(),
+            "User-Agent": "caelestia-agenda/1.0",
+        },
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=25) as response:
+            response.read()
+    except Exception as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

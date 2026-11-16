@@ -1,0 +1,76 @@
+{
+    "launcher": {
+        "useFuzzy": {
+            "schemes": false,
+            "wallpapers": false
+        }
+    },
+    "utilities": {
+        "quickToggles": [
+            {
+                "enabled": true,
+                "id": "wifi"
+            },
+            {
+                "enabled": true,
+                "id": "bluetooth"
+            },
+            {
+                "enabled": true,
+                "id": "mic"
+            },
+            {
+                "enabled": true,
+                "id": "settings"
+            },
+            {
+                "enabled": false,
+                "id": "gameMode"
+            },
+            {
+                "enabled": true,
+                "id": "dnd"
+            },
+            {
+                "enabled": false,
+                "id": "vpn"
+            }
+        ],
+        "vpn": {
+            "enabled": false,
+            "provider": [
+                {
+                    "connectCmd": [
+                        "protonvpn",
+                        "connect"
+                    ],
+                    "disconnectCmd": [
+                        "protonvpn",
+                        "disconnect"
+                    ],
+                    "displayName": "Proton VPN",
+                    "id": "vpn-mwjows1y-8h2xz",
+                    "interface": "proton0",
+                    "name": "proton"
+                },
+                {
+                    "connectCmd": [
+                        "protonvpn",
+                        "connect",
+                        "--country",
+                        "DE"
+                    ],
+                    "disconnectCmd": [
+                        "protonvpn",
+                        "disconnect"
+                    ],
+                    "displayName": "Proton VPN - DE",
+                    "id": "vpn-mwjpeqi2-8100x",
+                    "interface": "proton0",
+                    "name": "proton"
+                }
+            ],
+            "selectedProvider": "vpn-mwjpeqi2-8100x"
+        }
+    }
+}

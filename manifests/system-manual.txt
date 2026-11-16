@@ -1,0 +1,9 @@
+# System files that are stored as reference only.
+# They contain disk UUIDs, boot entries or snapshot device IDs and must be
+# adapted to the target machine before applying.
+
+etc/fstab
+etc/grub.d/40_custom
+etc/grub.d/disable
+etc/timeshift/timeshift.json
+etc/timeshift/default.json

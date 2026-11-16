@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+"""Fetch Google Calendar events for the Caelestia Agenda tab.
+
+Reads ~/.config/caelestia/agenda.json for the enabled calendars and either
+fetches the next N days or one specific day. Uses `gws calendar events list`
+for the configured calendars so the result includes descriptions and links.
+
+Usage:
+    agenda-calendar
+    agenda-calendar --date 2026-11-18
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+HOME = Path.home()
+CONFIG = Path(os.environ.get("AGENDA_CONFIG", HOME / ".config/caelestia/agenda.json"))
+CACHE = Path(os.environ.get("XDG_CACHE_HOME", HOME / ".cache")) / "caelestia" / "agenda-calendar.json"
+CALENDAR_CACHE = Path(os.environ.get("XDG_CACHE_HOME", HOME / ".cache")) / "caelestia" / "agenda-calendars.json"
+DEFAULT_CALENDARS = ["School", "Tests & Due Dates", "Privat"]
+GWS = shutil.which("gws") or "/usr/local/bin/gws"
+
+
+def load_config() -> tuple[int, list[str]]:
+    try:
+        cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+    except Exception:
+        cfg = {}
+    calendar = cfg.get("calendar") or {}
+    try:
+        days = max(1, min(31, int(calendar.get("days", 7))))
+    except Exception:
+        days = 7
+    calendars = calendar.get("calendars") or DEFAULT_CALENDARS
+    if not isinstance(calendars, list):
+        calendars = DEFAULT_CALENDARS
+    return days, [str(item) for item in calendars if str(item).strip()]
+
+
+def dump(payload: dict) -> None:
+    print(json.dumps(payload, ensure_ascii=False))
+
+
+def gws_json(*args: str) -> dict:
+    proc = subprocess.run(
+        [GWS, *args],
+        capture_output=True,
+        text=True,
+        timeout=45,
+    )
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout).strip()
+        raise RuntimeError(detail[:500] or f"gws exited with {proc.returncode}")
+    return json.loads(proc.stdout)
+
+
+def load_calendar_index() -> dict[str, dict]:
+    try:
+        cached = json.loads(CALENDAR_CACHE.read_text(encoding="utf-8"))
+        generated = cached.get("generated") or 0
+        if dt.datetime.now().timestamp() - float(generated) < 3600:
+            return cached.get("calendars") or {}
+    except Exception:
+        pass
+
+    data = gws_json("calendar", "calendarList", "list", "--params", json.dumps({"maxResults": 250}))
+    calendars = {}
+    for item in data.get("items") or []:
+        name = (item.get("summary") or "").strip()
+        if not name or not item.get("id"):
+            continue
+        calendars[name.casefold()] = {
+            "id": item["id"],
+            "name": name,
+            "color": item.get("backgroundColor") or "",
+        }
+
+    try:
+        CALENDAR_CACHE.parent.mkdir(parents=True, exist_ok=True)
+        CALENDAR_CACHE.write_text(json.dumps({
+            "generated": dt.datetime.now().timestamp(),
+            "calendars": calendars,
+        }, ensure_ascii=False), encoding="utf-8")
+        os.chmod(CALENDAR_CACHE, 0o600)
+    except Exception:
+        pass
+
+    return calendars
+
+
+def resolve_calendar(name: str, calendars: dict[str, dict]) -> dict | None:
+    key = name.strip().casefold()
+    if key in calendars:
+        return calendars[key]
+
+    # Allow a raw Google Calendar ID in the config.
+    if "@" in name or "#" in name:
+        return {
+            "id": name,
+            "name": name,
+            "color": "",
+        }
+
+    return None
+
+
+def fallback(query: str, reason: str) -> None:
+    try:
+        cached = json.loads(CACHE.read_text(encoding="utf-8"))
+        if cached.get("query") == query:
+            cached["stale"] = True
+            cached["error"] = reason
+            dump(cached)
+            return
+    except Exception:
+        pass
+
+    dump({
+        "generated": None,
+        "stale": True,
+        "query": query,
+        "error": reason,
+        "events": [],
+    })
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--date", help="fetch a single local date (YYYY-MM-DD)")
+    args = parser.parse_args()
+
+    days, calendar_names = load_config()
+    now = dt.datetime.now().astimezone()
+
+    if args.date:
+        try:
+            day = dt.date.fromisoformat(args.date)
+        except ValueError as exc:
+            fallback(f"date:{args.date}", f"Invalid date: {exc}")
+            return
+        start = dt.datetime.combine(day, dt.time.min).astimezone()
+        end = start + dt.timedelta(days=1)
+        query = f"date:{day.isoformat()}"
+    else:
+        start = now
+        end = now + dt.timedelta(days=days)
+        query = f"days:{days}"
+
+    try:
+        calendars = load_calendar_index()
+        events = []
+        errors = []
+
+        for name in calendar_names:
+            calendar = resolve_calendar(name, calendars)
+            if not calendar:
+                errors.append(f"Unknown calendar: {name}")
+                continue
+
+            try:
+                data = gws_json(
+                    "calendar", "events", "list",
+                    "--params", json.dumps({
+                        "calendarId": calendar["id"],
+                        "timeMin": start.isoformat(),
+                        "timeMax": end.isoformat(),
+                        "singleEvents": True,
+                        "orderBy": "startTime",
+                        "maxResults": 2500,
+                    }),
+                )
+            except Exception as exc:
+                errors.append(f"{name}: {exc}")
+                continue
+
+            for event in data.get("items") or []:
+                if event.get("status") == "cancelled":
+                    continue
+
+                start_value = event.get("start") or {}
+                end_value = event.get("end") or {}
+                raw_start = start_value.get("dateTime") or start_value.get("date") or ""
+                raw_end = end_value.get("dateTime") or end_value.get("date") or ""
+                all_day = "date" in start_value
+                date = raw_start[:10]
+                time = ""
+
+                if not all_day and raw_start:
+                    try:
+                        value = dt.datetime.fromisoformat(raw_start)
+                        if value.tzinfo is not None:
+                            value = value.astimezone()
+                        date = value.strftime("%Y-%m-%d")
+                        time = value.strftime("%H:%M")
+                    except Exception:
+                        pass
+
+                events.append({
+                    "calendar": calendar.get("name") or name,
+                    "color": calendar.get("color") or "",
+                    "summary": event.get("summary") or "",
+                    "description": event.get("description") or "",
+                    "location": event.get("location") or "",
+                    "htmlLink": event.get("htmlLink") or "",
+                    "start": raw_start,
+                    "end": raw_end,
+                    "date": date,
+                    "time": time,
+                    "allDay": all_day,
+                })
+
+        if not events and errors and len(errors) == len(calendar_names):
+            raise RuntimeError("; ".join(errors[:3]))
+
+        events.sort(key=lambda item: (
+            item["date"],
+            0 if item["allDay"] else 1,
+            item["time"] or "00:00",
+            item["summary"].casefold(),
+        ))
+
+        result = {
+            "generated": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
+            "stale": False,
+            "query": query,
+            "timeMin": start.isoformat(),
+            "timeMax": end.isoformat(),
+            "events": events,
+            "errors": errors,
+        }
+    except Exception as exc:
+        fallback(query, str(exc))
+        return
+
+    try:
+        CACHE.parent.mkdir(parents=True, exist_ok=True)
+        CACHE.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
+        os.chmod(CACHE, 0o600)
+    except Exception:
+        pass
+
+    dump(result)
+
+
+if __name__ == "__main__":
+    main()

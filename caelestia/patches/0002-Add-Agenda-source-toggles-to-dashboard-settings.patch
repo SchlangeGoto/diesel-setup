@@ -1,0 +1,52 @@
+From 6f69a684ab5c7f498f58de3fe74818e8beb64282 Mon Sep 17 00:00:00 2001
+From: SchlangeGoto <kazimir@kkazi.dev>
+Date: Mon, 16 Nov 2026 21:44:13 +0100
+Subject: [PATCH 2/3] Add Agenda source toggles to dashboard settings
+
+---
+ modules/nexus/pages/panels/DashboardPanel.qml | 22 +++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/modules/nexus/pages/panels/DashboardPanel.qml b/modules/nexus/pages/panels/DashboardPanel.qml
+index 71fb1f3..a52de2c 100644
+--- a/modules/nexus/pages/panels/DashboardPanel.qml
++++ b/modules/nexus/pages/panels/DashboardPanel.qml
+@@ -5,6 +5,7 @@ import QtQuick.Layouts
+ import Caelestia.Config
+ import Caelestia.I18n
+ import qs.modules.nexus.common
++import qs.services
+ 
+ PageBase {
+     id: root
+@@ -77,6 +78,27 @@ PageBase {
+             onToggled: GlobalConfig.dashboard.showWeather = checked
+         }
+ 
++        // Agenda
++        SectionHeader {
++            text: Tr.tr("Agenda")
++        }
++
++        ToggleRow {
++            first: true
++            text: Tr.tr("Google Calendar")
++            subtext: Tr.tr("Show calendar events in the Agenda tab")
++            checked: Agenda.calendarEnabled
++            onToggled: Agenda.setCalendarEnabled(checked)
++        }
++
++        ToggleRow {
++            last: true
++            text: Tr.tr("Todoist")
++            subtext: Tr.tr("Show Todoist tasks in the Agenda tab")
++            checked: Agenda.todoistEnabled
++            onToggled: Agenda.setTodoistEnabled(checked)
++        }
++
+         // Performance widgets
+         SectionHeader {
+             text: Tr.tr("Performance widgets")
+-- 
+2.56.1
+

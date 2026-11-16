@@ -1,0 +1,238 @@
+#!/usr/bin/env python3
+"""
+wallsort
+
+Walks a wallpaper folder, asks Caelestia's own `caelestia wallpaper --print`
+for the Material You scheme of each image (without touching your live
+wallpaper/theme), and organizes them into folders based on their "primary" color.
+
+Each wallpaper is classified in the light/dark mode Caelestia automatically picks
+for it (the same "smart" mode used when the wallpaper is actually set), so light
+and dark wallpapers are sorted using the colours you would really see.
+
+Result: "sunset_beach.jpg" -> moved to "orange/sunset_beach.jpg", so you can
+easily browse your wallpapers by color.
+
+Usage:
+    wallsort ~/Pictures/Wallpapers --recursive
+    wallsort ~/Pictures/Wallpapers --dry-run --recursive
+    wallsort ~/Pictures/Wallpapers --role primary --recursive
+    wallsort ~/Pictures/Wallpapers --jobs 4 --recursive
+
+Idempotent: if a file is already in its correct color folder, it is skipped.
+If it has an old prefix tag (e.g. "blue__"), it strips the tag and moves it.
+
+Note: once sorted, the wallpapers live in colour subfolders, so pass --recursive
+to include them when re-running.
+"""
+
+import argparse
+import colorsys
+import json
+import shutil
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+VALID_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}
+
+# Color buckets by hue range (in degrees, 0-360) for Caelestia accent colors.
+HUE_BUCKETS = [
+    (10, 40, "orange"),
+    (40, 68, "yellow"),
+    (68, 160, "green"),
+    (160, 195, "teal"),
+    (195, 255, "blue"),
+    (255, 290, "purple"),
+    (290, 350, "pink"),
+    (350, 360.001, "red"),
+    (0, 10, "red"),
+]
+
+KNOWN_TAGS = {name for _, _, name in HUE_BUCKETS} | {"gray", "white", "black", "brown"}
+
+
+def hex_to_color_name(hex_color: str) -> str:
+    hex_color = hex_color.lstrip("#")
+    r, g, b = (int(hex_color[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
+    h, s, v = colorsys.rgb_to_hsv(r, g, b)
+    hue = h * 360
+
+    # 1. Grayscale / Neutrals
+    # True white: near-zero saturation, bright
+    if s < 0.05 and v >= 0.90:
+        return "white"
+
+    # Black: very dark
+    if v < 0.15:
+        return "black"
+
+    # Gray: low saturation (true monochrome, not pastel colors)
+    if s < 0.08:
+        if v < 0.22:
+            return "black"
+        return "gray"
+
+    # 2. Brown / Olive (muted dark warm / olive tones)
+    if 15 <= hue <= 68 and s >= 0.20 and v <= 0.48:
+        return "brown"
+
+    # 3. Main spectral hue buckets for Caelestia accent colors
+    for lo, hi, name in HUE_BUCKETS:
+        if lo <= hue < hi:
+            return name
+
+    return "red"
+
+
+def get_primary_color(image_path: Path, role: str) -> str | None:
+    try:
+        result = subprocess.run(
+            ["caelestia", "wallpaper", "--print", str(image_path)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True,
+        )
+    except (
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        FileNotFoundError,
+    ) as e:
+        print(f"  ! caelestia failed on {image_path.name}: {e}", file=sys.stderr)
+        return None
+
+    try:
+        data = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        print(f"  ! could not parse JSON for {image_path.name}", file=sys.stderr)
+        return None
+
+    # Handle either {"colours": {...}} or a flat {"primary": "...", ...} shape
+    colours = data.get("colours", data)
+    hex_value = colours.get(role)
+    if not hex_value:
+        print(f"  ! role '{role}' not found for {image_path.name}", file=sys.stderr)
+        return None
+
+    return hex_value
+
+
+def strip_existing_tag(stem: str) -> str:
+    parts = stem.split("__", 1)
+    if len(parts) == 2 and parts[0] in KNOWN_TAGS:
+        return parts[1]
+    return stem
+
+
+def unique_destination(path: Path) -> Path:
+    if not path.exists():
+        return path
+    i = 2
+    while True:
+        candidate = path.with_name(f"{path.stem}-{i}{path.suffix}")
+        if not candidate.exists():
+            return candidate
+        i += 1
+
+
+def process_image(image_path: Path, role: str) -> tuple[Path, str | None]:
+    hex_value = get_primary_color(image_path, role)
+    if hex_value is None:
+        return image_path, None
+    color_name = hex_to_color_name(hex_value)
+    return image_path, color_name
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
+    parser.add_argument(
+        "folder",
+        type=Path,
+        nargs="?",
+        default=Path.home() / "Pictures" / "Wallpapers",
+        help="Wallpaper folder to process (default: ~/Pictures/Wallpapers)",
+    )
+
+    parser.add_argument(
+        "--role", default="primary", help="Color role to use (default: primary)"
+    )
+    parser.add_argument(
+        "--recursive", action="store_true", help="Recurse into subfolders"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show renames without applying them"
+    )
+    parser.add_argument(
+        "--jobs", type=int, default=4, help="Parallel caelestia calls (default: 4)"
+    )
+    args = parser.parse_args()
+
+    if not shutil.which("caelestia"):
+        print("error: 'caelestia' CLI not found on PATH.", file=sys.stderr)
+        sys.exit(1)
+
+    folder = args.folder.expanduser().resolve()
+    if not folder.is_dir():
+        print(f"error: {folder} is not a directory", file=sys.stderr)
+        sys.exit(1)
+
+    pattern = folder.rglob("*") if args.recursive else folder.glob("*")
+    images = sorted(
+        p for p in pattern if p.is_file() and p.suffix.lower() in VALID_EXTS
+    )
+
+    if not images:
+        print("No supported images found (.jpg .jpeg .png .webp .tif .tiff).")
+        return
+
+    print(
+        f"Found {len(images)} image(s). Extracting colors via caelestia (role={args.role})...\n"
+    )
+
+    moved, skipped, failed = 0, 0, 0
+
+    with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        futures = {pool.submit(process_image, img, args.role): img for img in images}
+        for future in as_completed(futures):
+            image_path, color_name = future.result()
+
+            if color_name is None:
+                failed += 1
+                continue
+
+            # Strip legacy tags like "orange__" back to original name if they exist
+            base_stem = strip_existing_tag(image_path.stem)
+            clean_name = f"{base_stem}{image_path.suffix}"
+
+            # Create destination folder path (e.g. ~/Pictures/Wallpapers/orange)
+            dest_dir = folder / color_name
+            new_path = dest_dir / clean_name
+
+            # If it's already in the right folder with the right name, skip it
+            if image_path.resolve() == new_path.resolve():
+                print(f"  = {image_path.name} (already in '{color_name}/')")
+                skipped += 1
+                continue
+
+            new_path = unique_destination(new_path)
+
+            if args.dry_run:
+                print(f"  would move: {image_path.name}  ->  {color_name}/{new_path.name}")
+            else:
+                dest_dir.mkdir(exist_ok=True)
+                image_path.rename(new_path)
+                print(f"  moved: {image_path.name}  ->  {color_name}/{new_path.name}")
+            moved += 1
+
+    print(f"\nDone. {moved} moved, {skipped} already sorted, {failed} failed.")
+    if args.dry_run:
+        print("(dry run - nothing was actually changed, drop --dry-run to apply)")
+
+
+if __name__ == "__main__":
+    main()

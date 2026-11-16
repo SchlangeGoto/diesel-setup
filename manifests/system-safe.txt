@@ -1,0 +1,22 @@
+# System paths that are safe to restore automatically on a new Arch install.
+# Paths are relative to /. Directories are synced recursively.
+# These files are world-readable; no sudo is needed to back them up.
+
+etc/default/grub
+etc/default/grub-btrfs/config
+etc/systemd/system/grub-btrfsd.service
+etc/sddm.conf
+etc/sddm.conf.d/caelestia.conf
+etc/mkinitcpio.conf
+etc/pacman.conf
+etc/locale.conf
+etc/vconsole.conf
+etc/hostname
+etc/hosts
+etc/modprobe.d/vmware-fuse.conf
+
+usr/share/sddm/themes/caelestia/theme.conf
+usr/share/sddm/themes/caelestia/assets/background
+usr/share/grub/themes/virtuaverse
+usr/share/grub/themes/starfield
+usr/share/grub/themes/Marathon-NewCascadia

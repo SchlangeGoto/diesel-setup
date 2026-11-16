@@ -1,0 +1,1 @@
+source ~/.local/state/caelestia/theme/fzf.fish

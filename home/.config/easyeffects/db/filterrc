@@ -1,0 +1,10 @@
+[sie][Filter#0]
+frequency=70
+mode=5
+slope=6
+type=10
+
+[sie][Filter#1]
+frequency=70
+slope=1
+type=1

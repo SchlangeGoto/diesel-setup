@@ -1,0 +1,7 @@
+[user]
+	name = SchlangeGoto
+	email = kazimir@kkazi.dev
+[core]
+	autocrlf = input
+[init]
+	defaultBranch = main

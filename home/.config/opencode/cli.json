@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "theme": {
+    "name": "caelestia",
+    "mode": "system"
+  },
+  "animations": true,
+  "session": {
+    "thinking": "hide",
+    "permissions": "prompt"
+  },
+  "terminal": {
+    "title": true
+  }
+}

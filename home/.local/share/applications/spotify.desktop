@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Spotify
+GenericName=Music Player
+Icon=spotify-client
+TryExec=spotify
+Exec=sh -c 'spicetify watch -s & exec spotify %U' --ozone-platform-hint=auto
+Terminal=false
+MimeType=x-scheme-handler/spotify;
+Categories=Audio;Music;Player;AudioVideo;
+StartupWMClass=spotify
+Comment=
+Path=
+StartupNotify=false

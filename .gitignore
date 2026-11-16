@@ -1,0 +1,35 @@
+# Never commit secrets
+home/.ssh/
+home/.face
+home/.wallpaper_renamer.json
+home/.config/gws/
+home/.config/gh/hosts.yml
+home/.config/gcloud/
+home/.config/opencode/service.json
+home/.config/opencode/agents/
+home/.config/opencode/commands/
+home/.config/opencode/skills/
+home/.config/caelestia/secrets/
+home/.config/caelestia/chromium/
+home/.config/teams-for-linux/
+home/.config/Todoist/
+home/.config/vesktop/
+home/.config/equibop/
+home/.config/Proton/
+home/.config/protonmail/
+system/etc/NetworkManager/system-connections/
+secrets/
+staging/
+
+# Caches / generated data
+**/__pycache__/
+**/*.pyc
+**/.cache/
+**/Cache/
+**/CachedData/
+**/GPUCache/
+**/Code Cache/
+**/node_modules/
+**/.git/
+**/*.log
+.DS_Store

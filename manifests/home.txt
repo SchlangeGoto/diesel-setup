@@ -1,0 +1,88 @@
+# Home paths to include in the setup backup.
+# Paths are relative to $HOME. Directories are synced recursively.
+# Keep secrets and personal account data out of this file.
+
+# Shell / user
+.bashrc
+.bash_profile
+.profile
+.gitconfig
+opencode.json
+skills-lock.json
+
+# Desktop / shell configuration
+.config/autostart
+.config/btop
+.config/cava
+.config/easyeffects
+.config/fastfetch
+.config/fish
+.config/foot
+.config/fuzzel
+.config/gh-dash
+.config/gtk-3.0
+.config/gtk-4.0
+.config/htop
+.config/hypr
+.config/micro
+.config/menus
+.config/mimeapps.list
+.config/nvim
+.config/pavucontrol.ini
+.config/qalculate
+.config/qtengine
+.config/QtProject.conf
+.config/spicetify
+.config/starship.toml
+.config/systemd
+.config/Thunar
+.config/uwsm
+.config/user-dirs.dirs
+.config/user-dirs.locale
+.config/wireplumber
+.config/xarchiver
+.config/xfce4
+.config/yazi
+.config/zed
+
+# Caelestia config (specific paths; secrets and Chromium key excluded)
+.config/caelestia/AGENDA.md
+.config/caelestia/agenda.json
+.config/caelestia/cli.json
+.config/caelestia/hypr-user.lua
+.config/caelestia/hypr-vars.lua
+.config/caelestia/monitors
+.config/caelestia/scripts
+.config/caelestia/shell.json
+.config/caelestia/templates
+.config/caelestia/user-config.fish
+.config/caelestia-nvim
+
+# OpenCode generic config (personal agents/skills are in diesel-secrets)
+.config/opencode/cli.json
+.config/opencode/opencode.json
+.config/opencode/opencode-mem.jsonc
+.config/opencode/themes
+
+# Editor settings only
+.config/Code/User/settings.json
+.config/Code/User/keybindings.json
+.config/VSCodium/User/settings.json
+.config/VSCodium/User/keybindings.json
+.config/VSCodium/User/snippets
+
+# Local scripts
+.local/bin/agenda-calendar
+.local/bin/agenda-todoist
+.local/bin/agenda-todoist-close
+.local/bin/chromium-mcp
+.local/bin/tb-sync.sh
+.local/bin/wallrename
+.local/bin/wallsort
+
+# Desktop entries and Caelestia state
+.local/share/applications
+.local/state/caelestia/scheme.json
+.local/state/caelestia/sequences.txt
+.local/state/caelestia/theme
+.local/state/caelestia/wallpaper

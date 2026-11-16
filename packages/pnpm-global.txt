@@ -1,0 +1,6 @@
+Legend: production dependency, optional only, dev only
+
+/home/kraftstoff/.local/share/pnpm/global/v11 (PRIVATE)
+│
+│   dependencies:
+└── eas-cli@27.5.0

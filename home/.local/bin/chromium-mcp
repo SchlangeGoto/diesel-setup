@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# MCP-only browser launcher: prefers the system Chromium, falls back to
+# Playwright's Chrome for Testing build when Chromium isn't installed.
+set -euo pipefail
+
+if [ -x /usr/bin/chromium ]; then
+  exec /usr/bin/chromium "$@"
+fi
+
+exec "$HOME/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome" "$@"

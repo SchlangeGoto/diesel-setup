@@ -1,0 +1,9 @@
+[sie][Compressor#0]
+hpfFrequency=100
+hpfMode=1
+knee=-8
+makeup=3
+ratio=2.5
+release=200
+sidechainMode=1
+threshold=-18

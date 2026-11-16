@@ -1,0 +1,12 @@
+# Static information about the filesystems.
+# See fstab(5) for details.
+
+# <file system> <dir> <type> <options> <dump> <pass>
+# /dev/nvme0n1p6
+UUID=53034fdb-cae5-4b7d-bf13-cd367d2b0362	/         	btrfs     	rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=/@	0 0
+
+# /dev/nvme0n1p6
+UUID=53034fdb-cae5-4b7d-bf13-cd367d2b0362	/home     	btrfs     	rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvol=/@home	0 0
+
+# /dev/nvme0n1p3
+#UUID=F656143E56140253 /mnt/windows ntfs3 defaults,nofail 0 0

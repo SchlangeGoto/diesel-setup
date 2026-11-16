@@ -1,0 +1,15 @@
+{
+    "calendar": {
+        "enabled": true,
+        "days": 7,
+        "calendars": [
+            "School",
+            "Tests & Due Dates",
+            "Privat"
+        ]
+    },
+    "todoist": {
+        "enabled": true,
+        "days": 3
+    }
+}

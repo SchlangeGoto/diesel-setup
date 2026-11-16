@@ -1,0 +1,10 @@
+{
+  "mcp": {
+    "servers": {
+      "todoist": {
+        "type": "remote",
+        "url": "https://ai.todoist.net/mcp"
+      }
+    }
+  }
+}

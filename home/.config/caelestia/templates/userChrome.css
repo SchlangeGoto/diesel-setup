@@ -1,0 +1,13 @@
+:root {
+  --toolbar-bgcolor: #{{ background.hex }} !important;
+  --tab-selected-bgcolor: #{{ surfaceContainer.hex }} !important;
+  --arrowpanel-background: #{{ surfaceContainer.hex }} !important;
+  --sidebar-background-color: #{{ background.hex }} !important;
+}
+#folderTree, #messengerBox {
+  background-color: #{{ background.hex }} !important;
+  color: #{{ onBackground.hex }} !important;
+}
+.tab-background[selected="true"] {
+  background-color: #{{ primary.hex }} !important;
+}
