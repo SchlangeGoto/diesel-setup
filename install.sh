@@ -213,9 +213,9 @@ for unit in sddm.service NetworkManager.service bluetooth.service grub-btrfsd.se
     fi
 done
 if command -v systemctl >/dev/null 2>&1; then
-    for unit in appimagelauncherd.service; do
+    for unit in appimagelauncherd.service agenda-notify.timer; do
         if systemctl --user cat "$unit" >/dev/null 2>&1; then
-            run systemctl --user enable "$unit"
+            run systemctl --user enable --now "$unit"
         fi
     done
 fi

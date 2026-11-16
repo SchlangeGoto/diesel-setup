@@ -6,5 +6,6 @@ gnome-keyring-daemon.socket enabled enabled
 p11-kit-server.socket       enabled enabled
 pipewire-pulse.socket       enabled enabled
 pipewire.socket             enabled enabled
+agenda-notify.timer         enabled enabled
 
-7 unit files listed.
+8 unit files listed.

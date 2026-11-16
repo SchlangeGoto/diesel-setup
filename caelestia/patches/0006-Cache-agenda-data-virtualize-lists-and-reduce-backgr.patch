@@ -1,0 +1,676 @@
+From 6e180669cc23532bb85ccfa35a3e8a21e8234662 Mon Sep 17 00:00:00 2001
+From: SchlangeGoto <kazimir@kkazi.dev>
+Date: Tue, 17 Nov 2026 00:33:51 +0100
+Subject: [PATCH 6/6] Cache agenda data, virtualize lists, and reduce
+ background work
+
+---
+ modules/bar/popouts/Content.qml |   3 +
+ modules/dashboard/AgendaTab.qml | 397 +++++++++++++++-----------------
+ modules/dashboard/Content.qml   |   1 +
+ services/Agenda.qml             | 107 ++++++++-
+ 4 files changed, 292 insertions(+), 216 deletions(-)
+
+diff --git a/modules/bar/popouts/Content.qml b/modules/bar/popouts/Content.qml
+index 50d19f2..ea58731 100644
+--- a/modules/bar/popouts/Content.qml
++++ b/modules/bar/popouts/Content.qml
+@@ -105,6 +105,7 @@ Item {
+ 
+         Popout {
+             name: "clock"
++            keepLoaded: true
+             sourceComponent: ClockPopout {
+                 popouts: root.popouts
+                 screenState: root.screenState
+@@ -175,6 +176,7 @@ Item {
+         required property string name
+         readonly property bool shouldBeActive: root.popouts.currentName === name
+         property bool ready: true
++        property bool keepLoaded: false
+ 
+         anchors.centerIn: parent
+ 
+@@ -203,6 +205,7 @@ Item {
+                     }
+                     PropertyAction {
+                         property: "active"
++                        value: popout.keepLoaded
+                     }
+                 }
+             },
+diff --git a/modules/dashboard/AgendaTab.qml b/modules/dashboard/AgendaTab.qml
+index d9a27a0..7f94c72 100644
+--- a/modules/dashboard/AgendaTab.qml
++++ b/modules/dashboard/AgendaTab.qml
+@@ -30,7 +30,12 @@ Item {
+         }
+     }
+ 
+-    Component.onCompleted: root.applyPendingDate()
++    Component.onCompleted: {
++        Agenda.setActive(true);
++        root.applyPendingDate();
++    }
++
++    Component.onDestruction: Agenda.setActive(false)
+ 
+     Connections {
+         function onPendingAgendaDateChanged(): void {
+@@ -223,113 +228,99 @@ Item {
+                             wrapMode: Text.WordWrap
+                         }
+ 
+-                        StyledFlickable {
+-                            id: calendarFlick
++                        ListView {
++                            id: calendarList
+ 
+                             Layout.fillWidth: true
+                             Layout.fillHeight: true
+                             clip: true
+-                            contentWidth: width
+-                            contentHeight: calendarColumn.implicitHeight
+-                            visible: Agenda.calendarEvents.length > 0
++                            visible: Agenda.calendarItems.length > 0
++                            model: Agenda.calendarItems
++                            spacing: Tokens.spacing.extraSmall
++                            boundsBehavior: Flickable.StopAtBounds
++
++                            section.property: "_section"
++                            section.delegate: Item {
++                                width: ListView.view.width
++                                implicitHeight: sectionLabel.implicitHeight + Tokens.padding.small
++
++                                StyledText {
++                                    id: sectionLabel
++
++                                    anchors.left: parent.left
++                                    anchors.bottom: parent.bottom
++                                    text: section
++                                    font: Tokens.font.label.medium
++                                    color: Colours.palette.m3primary
++                                }
++                            }
+ 
+-                            Column {
+-                                id: calendarColumn
++                            delegate: Item {
++                                id: eventItem
+ 
+-                                width: calendarFlick.width
+-                                spacing: Tokens.spacing.small
++                                required property var modelData
+ 
+-                                Repeater {
+-                                    model: Agenda.calendarSections
++                                width: ListView.view.width
++                                implicitHeight: eventRow.implicitHeight + Tokens.padding.small * 2
+ 
+-                                    delegate: Column {
+-                                        id: calendarSection
++                                StateLayer {
++                                    radius: Tokens.rounding.small
++                                    onClicked: root.showEvent(eventItem.modelData)
++                                }
++
++                                RowLayout {
++                                    id: eventRow
+ 
+-                                        required property var modelData
++                                    anchors.fill: parent
++                                    anchors.leftMargin: Tokens.padding.small
++                                    anchors.rightMargin: Tokens.padding.small
++                                    spacing: Tokens.spacing.small
+ 
+-                                        width: calendarColumn.width
+-                                        spacing: Tokens.spacing.extraSmall
++                                    StyledText {
++                                        Layout.preferredWidth: 42
++                                        Layout.alignment: Qt.AlignTop
++                                        text: eventItem.modelData.allDay ? Tr.tr("All day") : eventItem.modelData.time
++                                        color: Colours.palette.m3onSurfaceVariant
++                                        font: Tokens.font.label.small
++                                    }
++
++                                    Rectangle {
++                                        Layout.alignment: Qt.AlignTop
++                                        Layout.topMargin: Tokens.padding.extraSmall
++                                        implicitWidth: 6
++                                        implicitHeight: 6
++                                        radius: 3
++                                        color: root.calendarColour(eventItem.modelData.calendar)
++                                    }
++
++                                    ColumnLayout {
++                                        Layout.fillWidth: true
++                                        spacing: 0
+ 
+                                         StyledText {
+-                                            text: calendarSection.modelData.label
+-                                            topPadding: Tokens.padding.small
+-                                            font: Tokens.font.label.medium
+-                                            color: Colours.palette.m3primary
++                                            Layout.fillWidth: true
++                                            text: eventItem.modelData.summary
++                                            font: Tokens.font.body.medium
++                                            color: Colours.palette.m3onSurface
++                                            wrapMode: Text.WordWrap
++                                            maximumLineCount: 2
++                                            elide: Text.ElideRight
+                                         }
+ 
+-                                        Repeater {
+-                                            model: calendarSection.modelData.events ?? []
+-
+-                                            delegate: Item {
+-                                                id: eventItem
+-
+-                                                required property var modelData
+-
+-                                                width: calendarSection.width
+-                                                implicitHeight: eventRow.implicitHeight + Tokens.padding.small * 2
+-
+-                                                StateLayer {
+-                                                    radius: Tokens.rounding.small
+-                                                    onClicked: root.showEvent(eventItem.modelData)
+-                                                }
+-
+-                                                RowLayout {
+-                                                    id: eventRow
+-
+-                                                    anchors.fill: parent
+-                                                    anchors.leftMargin: Tokens.padding.small
+-                                                    anchors.rightMargin: Tokens.padding.small
+-                                                    spacing: Tokens.spacing.small
+-
+-                                                    StyledText {
+-                                                        Layout.preferredWidth: 42
+-                                                        Layout.alignment: Qt.AlignTop
+-                                                        text: eventItem.modelData.allDay ? Tr.tr("All day") : eventItem.modelData.time
+-                                                        color: Colours.palette.m3onSurfaceVariant
+-                                                        font: Tokens.font.label.small
+-                                                    }
+-
+-                                                    Rectangle {
+-                                                        Layout.alignment: Qt.AlignTop
+-                                                        Layout.topMargin: Tokens.padding.extraSmall
+-                                                        implicitWidth: 6
+-                                                        implicitHeight: 6
+-                                                        radius: 3
+-                                                        color: root.calendarColour(eventItem.modelData.calendar)
+-                                                    }
+-
+-                                                    ColumnLayout {
+-                                                        Layout.fillWidth: true
+-                                                        spacing: 0
+-
+-                                                        StyledText {
+-                                                            Layout.fillWidth: true
+-                                                            text: eventItem.modelData.summary
+-                                                            font: Tokens.font.body.medium
+-                                                            color: Colours.palette.m3onSurface
+-                                                            wrapMode: Text.WordWrap
+-                                                            maximumLineCount: 2
+-                                                            elide: Text.ElideRight
+-                                                        }
+-
+-                                                        StyledText {
+-                                                            Layout.fillWidth: true
+-                                                            visible: text.length > 0
+-                                                            text: {
+-                                                                const parts = [];
+-                                                                if (eventItem.modelData.location)
+-                                                                    parts.push(eventItem.modelData.location);
+-                                                                if (eventItem.modelData.calendar)
+-                                                                    parts.push(eventItem.modelData.calendar);
+-                                                                return parts.join(" · ");
+-                                                            }
+-                                                            color: Colours.palette.m3onSurfaceVariant
+-                                                            font: Tokens.font.label.small
+-                                                            elide: Text.ElideRight
+-                                                        }
+-                                                    }
+-                                                }
++                                        StyledText {
++                                            Layout.fillWidth: true
++                                            visible: text.length > 0
++                                            text: {
++                                                const parts = [];
++                                                if (eventItem.modelData.location)
++                                                    parts.push(eventItem.modelData.location);
++                                                if (eventItem.modelData.calendar)
++                                                    parts.push(eventItem.modelData.calendar);
++                                                return parts.join(" · ");
+                                             }
++                                            color: Colours.palette.m3onSurfaceVariant
++                                            font: Tokens.font.label.small
++                                            elide: Text.ElideRight
+                                         }
+                                     }
+                                 }
+@@ -417,140 +408,126 @@ Item {
+                             wrapMode: Text.WordWrap
+                         }
+ 
+-                        StyledFlickable {
+-                            id: todoistFlick
++                        ListView {
++                            id: todoistList
+ 
+                             Layout.fillWidth: true
+                             Layout.fillHeight: true
+                             clip: true
+-                            contentWidth: width
+-                            contentHeight: todoistColumn.implicitHeight
+-                            visible: Agenda.todoistTasks.length > 0
++                            visible: Agenda.todoistItems.length > 0
++                            model: Agenda.todoistItems
++                            spacing: Tokens.spacing.extraSmall
++                            boundsBehavior: Flickable.StopAtBounds
++
++                            section.property: "_section"
++                            section.delegate: Item {
++                                width: ListView.view.width
++                                implicitHeight: sectionLabel.implicitHeight + Tokens.padding.small
++
++                                StyledText {
++                                    id: sectionLabel
++
++                                    anchors.left: parent.left
++                                    anchors.bottom: parent.bottom
++                                    text: section
++                                    font: Tokens.font.label.medium
++                                    color: section === Tr.tr("Overdue") ? Colours.palette.m3error : Colours.palette.m3secondary
++                                }
++                            }
++
++                            delegate: Item {
++                                id: taskItem
++
++                                required property var modelData
+ 
+-                            Column {
+-                                id: todoistColumn
++                                width: ListView.view.width
++                                implicitHeight: taskRow.implicitHeight + Tokens.padding.small * 2
+ 
+-                                width: todoistFlick.width
+-                                spacing: Tokens.spacing.small
++                                StateLayer {
++                                    radius: Tokens.rounding.small
++                                    onClicked: root.showTask(taskItem.modelData)
++                                }
++
++                                RowLayout {
++                                    id: taskRow
+ 
+-                                Repeater {
+-                                    model: Agenda.todoistSections
++                                    anchors.fill: parent
++                                    anchors.leftMargin: Tokens.padding.small
++                                    anchors.rightMargin: Tokens.padding.small
++                                    spacing: Tokens.spacing.small
+ 
+-                                    delegate: Column {
+-                                        id: taskSection
++                                    Item {
++                                        implicitWidth: 28
++                                        implicitHeight: 28
++                                        Layout.alignment: Qt.AlignTop
++
++                                        MaterialIcon {
++                                            anchors.centerIn: parent
++                                            text: taskItem.modelData.auto ? "sync" : "check_box_outline_blank"
++                                            color: taskItem.modelData.auto ? Colours.palette.m3outline : Colours.palette.m3primary
++                                            fontStyle: Tokens.font.icon.medium
++                                        }
+ 
+-                                        required property var modelData
++                                        StateLayer {
++                                            anchors.fill: parent
++                                            disabled: taskItem.modelData.auto
++                                            onClicked: Agenda.completeTask(taskItem.modelData.id)
++                                        }
++                                    }
+ 
+-                                        width: todoistColumn.width
+-                                        spacing: Tokens.spacing.extraSmall
++                                    ColumnLayout {
++                                        Layout.fillWidth: true
++                                        spacing: 0
+ 
+                                         StyledText {
+-                                            text: taskSection.modelData.label
+-                                            topPadding: Tokens.padding.small
+-                                            font: Tokens.font.label.medium
+-                                            color: taskSection.modelData.label === Tr.tr("Overdue") ? Colours.palette.m3error : Colours.palette.m3secondary
++                                            Layout.fillWidth: true
++                                            text: taskItem.modelData.content
++                                            font: Tokens.font.body.medium
++                                            color: Colours.palette.m3onSurface
++                                            wrapMode: Text.WordWrap
++                                            maximumLineCount: 2
++                                            elide: Text.ElideRight
+                                         }
+ 
+-                                        Repeater {
+-                                            model: taskSection.modelData.tasks ?? []
+-
+-                                            delegate: Item {
+-                                                id: taskItem
+-
+-                                                required property var modelData
+-
+-                                                width: taskSection.width
+-                                                implicitHeight: taskRow.implicitHeight + Tokens.padding.small * 2
+-
+-                                                StateLayer {
+-                                                    radius: Tokens.rounding.small
+-                                                    onClicked: root.showTask(taskItem.modelData)
+-                                                }
+-
+-                                                RowLayout {
+-                                                    id: taskRow
+-
+-                                                    anchors.fill: parent
+-                                                    anchors.leftMargin: Tokens.padding.small
+-                                                    anchors.rightMargin: Tokens.padding.small
+-                                                    spacing: Tokens.spacing.small
+-
+-                                                    Item {
+-                                                        implicitWidth: 28
+-                                                        implicitHeight: 28
+-                                                        Layout.alignment: Qt.AlignTop
+-
+-                                                        MaterialIcon {
+-                                                            anchors.centerIn: parent
+-                                                            text: taskItem.modelData.auto ? "sync" : "check_box_outline_blank"
+-                                                            color: taskItem.modelData.auto ? Colours.palette.m3outline : Colours.palette.m3primary
+-                                                            fontStyle: Tokens.font.icon.medium
+-                                                        }
+-
+-                                                        StateLayer {
+-                                                            anchors.fill: parent
+-                                                            disabled: taskItem.modelData.auto
+-                                                            onClicked: Agenda.completeTask(taskItem.modelData.id)
+-                                                        }
+-                                                    }
+-
+-                                                    ColumnLayout {
+-                                                        Layout.fillWidth: true
+-                                                        spacing: 0
+-
+-                                                        StyledText {
+-                                                            Layout.fillWidth: true
+-                                                            text: taskItem.modelData.content
+-                                                            font: Tokens.font.body.medium
+-                                                            color: Colours.palette.m3onSurface
+-                                                            wrapMode: Text.WordWrap
+-                                                            maximumLineCount: 2
+-                                                            elide: Text.ElideRight
+-                                                        }
+-
+-                                                        RowLayout {
+-                                                            spacing: Tokens.spacing.small
+-
+-                                                            StyledText {
+-                                                                text: taskItem.modelData.project
+-                                                                color: Colours.palette.m3onSurfaceVariant
+-                                                                font: Tokens.font.label.small
+-                                                                elide: Text.ElideRight
+-                                                            }
+-
+-                                                            StyledText {
+-                                                                text: "·"
+-                                                                visible: taskItem.modelData.project.length > 0
+-                                                                color: Colours.palette.m3outline
+-                                                                font: Tokens.font.label.small
+-                                                            }
+-
+-                                                            StyledText {
+-                                                                text: Agenda.taskDueLabel(taskItem.modelData)
+-                                                                color: root.dueColour(taskItem.modelData)
+-                                                                font: Tokens.font.label.small
+-                                                            }
+-
+-                                                            StyledText {
+-                                                                visible: taskItem.modelData.auto
+-                                                                text: Tr.tr("auto")
+-                                                                color: Colours.palette.m3outline
+-                                                                font: Tokens.font.label.small
+-                                                            }
+-                                                        }
+-                                                    }
+-
+-                                                    Rectangle {
+-                                                        Layout.alignment: Qt.AlignVCenter
+-                                                        implicitWidth: 6
+-                                                        implicitHeight: 6
+-                                                        radius: 3
+-                                                        color: root.priorityColour(taskItem.modelData.priority)
+-                                                    }
+-                                                }
++                                        RowLayout {
++                                            spacing: Tokens.spacing.small
++
++                                            StyledText {
++                                                text: taskItem.modelData.project
++                                                color: Colours.palette.m3onSurfaceVariant
++                                                font: Tokens.font.label.small
++                                                elide: Text.ElideRight
++                                            }
++
++                                            StyledText {
++                                                text: "·"
++                                                visible: taskItem.modelData.project.length > 0
++                                                color: Colours.palette.m3outline
++                                                font: Tokens.font.label.small
++                                            }
++
++                                            StyledText {
++                                                text: Agenda.taskDueLabel(taskItem.modelData)
++                                                color: root.dueColour(taskItem.modelData)
++                                                font: Tokens.font.label.small
++                                            }
++
++                                            StyledText {
++                                                visible: taskItem.modelData.auto
++                                                text: Tr.tr("auto")
++                                                color: Colours.palette.m3outline
++                                                font: Tokens.font.label.small
+                                             }
+                                         }
+                                     }
++
++                                    Rectangle {
++                                        Layout.alignment: Qt.AlignVCenter
++                                        implicitWidth: 6
++                                        implicitHeight: 6
++                                        radius: 3
++                                        color: root.priorityColour(taskItem.modelData.priority)
++                                    }
+                                 }
+                             }
+                         }
+diff --git a/modules/dashboard/Content.qml b/modules/dashboard/Content.qml
+index 82c8611..48af1b4 100644
+--- a/modules/dashboard/Content.qml
++++ b/modules/dashboard/Content.qml
+@@ -151,6 +151,7 @@ Item {
+                         // Load only the active tab. Keeping every tab loaded
+                         // made the first dashboard open noticeably slower.
+                         active: index === view.currentIndex
++                        asynchronous: index !== 0
+                     }
+                 }
+             }
+diff --git a/services/Agenda.qml b/services/Agenda.qml
+index 75d1cfa..c319040 100644
+--- a/services/Agenda.qml
++++ b/services/Agenda.qml
+@@ -45,11 +45,17 @@ Singleton {
+     property bool closingTask: false
+     property var closeQueue: []
+     property bool writingConfig: false
++    property bool active: false
++
++    readonly property string calendarCachePath: `${Paths.cache}/agenda-calendar.json`
++    readonly property string todoistCachePath: `${Paths.cache}/agenda-todoist.json`
+ 
+     readonly property var calendarSections: root.buildSections(root.calendarEvents)
++    readonly property var calendarItems: root.flattenCalendar(root.calendarSections)
+     readonly property bool dayMode: root.selectedDate.length > 0
+     readonly property var todoistTasks: root.filterTodoist(root.todoistAllTasks)
+     readonly property var todoistSections: root.buildTaskSections(root.todoistTasks)
++    readonly property var todoistItems: root.flattenTasks(root.todoistSections)
+     readonly property string selectedDateLabel: root.dayMode ? root.formatDay(root.selectedDate) : Tr.tr("Next %1 days").arg(root.config.calendar.days)
+     readonly property bool anyEnabled: root.calendarEnabled || root.todoistEnabled
+     readonly property bool anyLoading: (root.calendarEnabled && root.loadingCalendar) || (root.todoistEnabled && root.loadingTodoist)
+@@ -88,11 +94,13 @@ Singleton {
+         root.calendarEnabled = root.config.calendar.enabled;
+         root.todoistEnabled = root.config.todoist.enabled;
+ 
+-        if (!root.configReady) {
+-            root.configReady = true;
+-            Qt.callLater(() => root.refreshAll());
+-        } else {
++        const firstLoad = !root.configReady;
++        root.configReady = true;
++        if (root.active) {
++            root.loadCaches();
+             Qt.callLater(() => root.refreshAll());
++        } else if (firstLoad) {
++            root.loadCaches();
+         }
+     }
+ 
+@@ -118,6 +126,52 @@ Singleton {
+             root.refreshTodoist();
+     }
+ 
++    function setActive(value: bool): void {
++        root.active = value;
++        if (value && root.configReady) {
++            root.loadCaches();
++            root.refreshAll();
++        }
++    }
++
++    function loadCaches(): void {
++        try {
++            root.applyCalendarCache(calendarCache.text());
++        } catch (error) {
++            console.debug(lc, `No calendar cache: ${error}`);
++        }
++        try {
++            root.applyTodoistCache(todoistCache.text());
++        } catch (error) {
++            console.debug(lc, `No Todoist cache: ${error}`);
++        }
++    }
++
++    function applyCalendarCache(raw: string): void {
++        try {
++            const data = JSON.parse(raw);
++            const query = root.dayMode ? `date:${root.selectedDate}` : `days:${root.config.calendar.days}`;
++            if (data.query && data.query !== query)
++                return;
++            root.calendarEvents = data.events ?? [];
++            root.calendarStale = true;
++            root.calendarUpdated = data.generated ? Date.parse(data.generated) : 0;
++        } catch (error) {
++            console.debug(lc, `Unable to parse calendar cache: ${error}`);
++        }
++    }
++
++    function applyTodoistCache(raw: string): void {
++        try {
++            const data = JSON.parse(raw);
++            root.todoistAllTasks = data.tasks ?? [];
++            root.todoistStale = true;
++            root.todoistUpdated = data.generated ? Date.parse(data.generated) : 0;
++        } catch (error) {
++            console.debug(lc, `Unable to parse Todoist cache: ${error}`);
++        }
++    }
++
+     function dateString(value: var): string {
+         if (value instanceof Date) {
+             return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
+@@ -270,6 +324,30 @@ Singleton {
+         return sections;
+     }
+ 
++    function flattenCalendar(sections: var): var {
++        const items = [];
++        for (const section of sections) {
++            for (const event of section.events ?? []) {
++                const item = Object.assign({}, event);
++                item._section = section.label;
++                items.push(item);
++            }
++        }
++        return items;
++    }
++
++    function flattenTasks(sections: var): var {
++        const items = [];
++        for (const section of sections) {
++            for (const task of section.tasks ?? []) {
++                const item = Object.assign({}, task);
++                item._section = section.label;
++                items.push(item);
++            }
++        }
++        return items;
++    }
++
+     function todayString(): string {
+         const today = new Date();
+         return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+@@ -356,7 +434,7 @@ Singleton {
+     Timer {
+         interval: 5 * 60 * 1000
+         repeat: true
+-        running: root.configReady && root.anyEnabled
++        running: root.active && root.configReady && root.anyEnabled
+         triggeredOnStart: true
+         onTriggered: root.refreshAll()
+     }
+@@ -389,7 +467,8 @@ Singleton {
+                 root.configReady = true;
+                 Qt.callLater(() => {
+                     root.saveConfig();
+-                    root.refreshAll();
++                    if (root.active)
++                        root.refreshAll();
+                 });
+             } else {
+                 console.warn(lc, `Unable to load agenda config: ${error}`);
+@@ -397,6 +476,22 @@ Singleton {
+         }
+     }
+ 
++    FileView {
++        id: calendarCache
++
++        path: root.calendarCachePath
++        preload: true
++        printErrors: false
++    }
++
++    FileView {
++        id: todoistCache
++
++        path: root.todoistCachePath
++        preload: true
++        printErrors: false
++    }
++
+     Process {
+         id: calendarProc
+ 
+-- 
+2.56.1
+

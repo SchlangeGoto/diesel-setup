@@ -75,6 +75,7 @@ skills-lock.json
 .local/bin/agenda-calendar
 .local/bin/agenda-todoist
 .local/bin/agenda-todoist-close
+.local/bin/agenda-notify
 .local/bin/chromium-mcp
 .local/bin/tb-sync.sh
 .local/bin/wallrename

@@ -1,0 +1,9 @@
+[Unit]
+Description=Caelestia Agenda event notifications
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/agenda-notify
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Nice=10
