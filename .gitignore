@@ -33,3 +33,6 @@ staging/
 **/.git/
 **/*.log
 .DS_Store
+
+# systemd wants symlinks are recreated by install.sh
+home/.config/systemd/user/*.wants/
