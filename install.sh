@@ -71,6 +71,9 @@ if ((INSTALL_PACKAGES)); then
     if [[ -s "$REPO_DIR/packages/pacman-explicit.txt" ]]; then
         sudo_run pacman -S --needed --noconfirm - < "$REPO_DIR/packages/pacman-explicit.txt"
     fi
+    if [[ -s "$REPO_DIR/packages/extra-explicit.txt" ]]; then
+        sudo_run pacman -S --needed --noconfirm - < "$REPO_DIR/packages/extra-explicit.txt"
+    fi
 
     if ! command -v yay >/dev/null 2>&1; then
         say "Installing yay"
@@ -155,7 +158,7 @@ fi
 
 say "Restoring wallpapers"
 if [[ -d "$REPO_DIR/wallpapers" ]]; then
-    if grep -RIl --include='*' -m1 'git-lfs.github.com/spec' "$REPO_DIR/wallpapers" >/dev/null 2>&1; then
+    if grep -RIl 'git-lfs.github.com/spec' "$REPO_DIR/wallpapers" >/dev/null 2>&1; then
         say "Fetching Git LFS objects"
         run git -C "$REPO_DIR" lfs pull
     fi

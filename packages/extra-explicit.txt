@@ -1,0 +1,14 @@
+# Packages that are installed as dependencies on this machine but are needed
+# explicitly by the setup scripts, docs or first login.
+openssh
+dconf
+nodejs
+npm
+rsync
+git-lfs
+usbutils
+jq
+python
+curl
+zstd
+gnupg
