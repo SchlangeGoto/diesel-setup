@@ -1,0 +1,132 @@
+From 4b8a4e63a79b8f3d9ac84411003777b9fccc9c54 Mon Sep 17 00:00:00 2001
+From: SchlangeGoto <kazimir@kkazi.dev>
+Date: Mon, 16 Nov 2026 23:58:29 +0100
+Subject: [PATCH 4/4] Lazy-load dashboard tabs and agenda service
+
+---
+ components/ScreenState.qml          |  1 +
+ modules/bar/popouts/ClockPopout.qml |  2 +-
+ modules/dashboard/AgendaTab.qml     | 23 +++++++++++++++++++++++
+ modules/dashboard/Content.qml       | 19 +++++++++++--------
+ modules/dashboard/Dash.qml          |  2 +-
+ 5 files changed, 37 insertions(+), 10 deletions(-)
+
+diff --git a/components/ScreenState.qml b/components/ScreenState.qml
+index 7ec1909..5c4b008 100644
+--- a/components/ScreenState.qml
++++ b/components/ScreenState.qml
+@@ -15,4 +15,5 @@ PersistentProperties {
+     // Dashboard state
+     property int dashboardTab
+     property date dashboardDate: new Date()
++    property string pendingAgendaDate
+ }
+diff --git a/modules/bar/popouts/ClockPopout.qml b/modules/bar/popouts/ClockPopout.qml
+index daf69ad..d5c4814 100644
+--- a/modules/bar/popouts/ClockPopout.qml
++++ b/modules/bar/popouts/ClockPopout.qml
+@@ -16,8 +16,8 @@ Item {
+     implicitHeight: layout.implicitHeight
+ 
+     function openAgenda(date: var): void {
+-        Agenda.setSelectedDate(date);
+         if (root.screenState) {
++            root.screenState.pendingAgendaDate = Qt.formatDate(date, "yyyy-MM-dd");
+             root.screenState.dashboard = true;
+             root.screenState.dashboardTab = GlobalConfig.dashboard.showDashboard ? 1 : 0;
+         }
+diff --git a/modules/dashboard/AgendaTab.qml b/modules/dashboard/AgendaTab.qml
+index 3468fae..e9ca8f7 100644
+--- a/modules/dashboard/AgendaTab.qml
++++ b/modules/dashboard/AgendaTab.qml
+@@ -11,12 +11,35 @@ import qs.utils
+ Item {
+     id: root
+ 
++    required property var screenState
++
+     implicitWidth: 854
+     implicitHeight: 570
+ 
+     property var detailEvent: null
+     property var detailTask: null
+ 
++    function applyPendingDate(): void {
++        if (!root.screenState)
++            return;
++
++        const value = root.screenState.pendingAgendaDate;
++        if (value && value.length > 0) {
++            Agenda.setSelectedDate(value);
++            root.screenState.pendingAgendaDate = "";
++        }
++    }
++
++    Component.onCompleted: root.applyPendingDate()
++
++    Connections {
++        function onPendingAgendaDateChanged(): void {
++            root.applyPendingDate();
++        }
++
++        target: root.screenState
++    }
++
+     function showEvent(event: var): void {
+         root.detailTask = null;
+         root.detailEvent = event;
+diff --git a/modules/dashboard/Content.qml b/modules/dashboard/Content.qml
+index 0e48249..b81cb80 100644
+--- a/modules/dashboard/Content.qml
++++ b/modules/dashboard/Content.qml
+@@ -146,15 +146,16 @@ Item {
+ 
+                         Layout.alignment: Qt.AlignTop
+ 
++                        // Important: Loader.active defaults to true. Without
++                        // this, every tab is instantiated once before the
++                        // binding below is installed.
++                        active: false
+                         sourceComponent: modelData.component
+ 
+-                        Component.onCompleted: active = Qt.binding(() => {
+-                            if (index === view.currentIndex)
+-                                return true;
+-                            const vx = Math.floor(view.visibleArea.xPosition * view.contentWidth);
+-                            const vex = Math.floor(vx + view.visibleArea.widthRatio * view.contentWidth);
+-                            return (vx >= x && vx <= x + implicitWidth) || (vex >= x && vex <= x + implicitWidth);
+-                        })
++                        // Load only the active tab. Preloading neighbours made
++                        // the dashboard noticeably slower on hover because the
++                        // Agenda/Media panes are relatively expensive.
++                        Component.onCompleted: active = Qt.binding(() => index === view.currentIndex)
+                     }
+                 }
+             }
+@@ -171,7 +172,9 @@ Item {
+             Component {
+                 id: agendaComponent
+ 
+-                AgendaTab {}
++                AgendaTab {
++                    screenState: root.screenState
++                }
+             }
+ 
+             Component {
+diff --git a/modules/dashboard/Dash.qml b/modules/dashboard/Dash.qml
+index 19cf7e3..6fa9cbe 100644
+--- a/modules/dashboard/Dash.qml
++++ b/modules/dashboard/Dash.qml
+@@ -69,7 +69,7 @@ GridLayout {
+ 
+             screenState: root.screenState
+             onDateSelected: selectedDate => {
+-                Agenda.setSelectedDate(selectedDate);
++                root.screenState.pendingAgendaDate = Qt.formatDate(selectedDate, "yyyy-MM-dd");
+                 root.screenState.dashboardTab = Config.dashboard.showDashboard ? 1 : 0;
+             }
+         }
+-- 
+2.56.1
+
