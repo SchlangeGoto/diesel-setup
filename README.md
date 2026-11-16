@@ -82,4 +82,11 @@ The public repo must never receive credentials. The backup script uses
 allowlists (`manifests/*.txt`) and `.gitignore` as a second guard. If you add a
 new secret-bearing path, add it to `.gitignore` first.
 
-The private companion repo is `SchlangeGoto/diesel-secrets`.
+The private companion repo is `SchlangeGoto/diesel-secrets`. It stores one
+GPG-encrypted archive; the passphrase is not in either repository.
+
+## Wallpapers
+
+`wallpapers/` is a personal collection and is redistributed publicly because
+this repository is public. Check the original licenses before reusing the
+images elsewhere.
