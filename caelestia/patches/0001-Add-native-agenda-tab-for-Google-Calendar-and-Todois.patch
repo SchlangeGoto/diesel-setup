@@ -1,7 +1,7 @@
 From 50e477a114485a51fbd719acda4082b8edf99454 Mon Sep 17 00:00:00 2001
 From: SchlangeGoto <kazimir@kkazi.dev>
 Date: Mon, 16 Nov 2026 21:43:02 +0100
-Subject: [PATCH 1/6] Add native agenda tab for Google Calendar and Todoist
+Subject: [PATCH 1/7] Add native agenda tab for Google Calendar and Todoist
 
 ---
  modules/Shortcuts.qml           |  21 ++

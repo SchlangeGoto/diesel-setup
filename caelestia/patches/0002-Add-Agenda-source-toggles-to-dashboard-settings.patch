@@ -1,7 +1,7 @@
 From 6f69a684ab5c7f498f58de3fe74818e8beb64282 Mon Sep 17 00:00:00 2001
 From: SchlangeGoto <kazimir@kkazi.dev>
 Date: Mon, 16 Nov 2026 21:44:13 +0100
-Subject: [PATCH 2/6] Add Agenda source toggles to dashboard settings
+Subject: [PATCH 2/7] Add Agenda source toggles to dashboard settings
 
 ---
  modules/nexus/pages/panels/DashboardPanel.qml | 22 +++++++++++++++++++

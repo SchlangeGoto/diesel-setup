@@ -1,7 +1,7 @@
 From 6e180669cc23532bb85ccfa35a3e8a21e8234662 Mon Sep 17 00:00:00 2001
 From: SchlangeGoto <kazimir@kkazi.dev>
 Date: Tue, 17 Nov 2026 00:33:51 +0100
-Subject: [PATCH 6/6] Cache agenda data, virtualize lists, and reduce
+Subject: [PATCH 6/7] Cache agenda data, virtualize lists, and reduce
  background work
 
 ---

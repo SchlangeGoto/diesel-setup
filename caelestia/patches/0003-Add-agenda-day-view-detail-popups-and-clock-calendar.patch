@@ -1,7 +1,7 @@
 From b56104204679fd6f595c8b9e904852985624b437 Mon Sep 17 00:00:00 2001
 From: SchlangeGoto <kazimir@kkazi.dev>
 Date: Mon, 16 Nov 2026 22:33:35 +0100
-Subject: [PATCH 3/6] Add agenda day view, detail popups, and clock calendar
+Subject: [PATCH 3/7] Add agenda day view, detail popups, and clock calendar
 
 ---
  modules/Shortcuts.qml                |   8 -
