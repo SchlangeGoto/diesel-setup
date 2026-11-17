@@ -1,7 +1,7 @@
 From 4b8a4e63a79b8f3d9ac84411003777b9fccc9c54 Mon Sep 17 00:00:00 2001
 From: SchlangeGoto <kazimir@kkazi.dev>
 Date: Mon, 16 Nov 2026 23:58:29 +0100
-Subject: [PATCH 4/7] Lazy-load dashboard tabs and agenda service
+Subject: [PATCH 4/5] Lazy-load dashboard tabs and agenda service
 
 ---
  components/ScreenState.qml          |  1 +
