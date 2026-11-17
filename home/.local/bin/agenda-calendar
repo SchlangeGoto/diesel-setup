@@ -50,6 +50,17 @@ def dump(payload: dict) -> None:
     print(json.dumps(payload, ensure_ascii=False))
 
 
+def clean_gws_error(text: str) -> str:
+    lines = [
+        line for line in text.splitlines()
+        if "Using keyring backend:" not in line
+    ]
+    detail = "\n".join(lines).strip()
+    if "invalid_grant" in detail or "Token has been expired or revoked" in detail:
+        return "Google-Anmeldung abgelaufen. Bitte `gws auth login` im Terminal ausführen."
+    return detail[:500]
+
+
 def gws_json(*args: str) -> dict:
     proc = subprocess.run(
         [GWS, *args],
@@ -58,8 +69,8 @@ def gws_json(*args: str) -> dict:
         timeout=45,
     )
     if proc.returncode != 0:
-        detail = (proc.stderr or proc.stdout).strip()
-        raise RuntimeError(detail[:500] or f"gws exited with {proc.returncode}")
+        detail = clean_gws_error((proc.stderr or proc.stdout).strip())
+        raise RuntimeError(detail or f"gws exited with {proc.returncode}")
     return json.loads(proc.stdout)
 
 

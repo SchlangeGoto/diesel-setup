@@ -1,3 +1,4 @@
+bastet
 caelestia-cli
 caelestia-firefox-theme
 caelestia-sddm-locklike-git
@@ -8,6 +9,8 @@ equibop-bin
 java21-openjfx-bin
 jetbrains-toolbox
 mcaselector
+ninvaders
+nsnake
 opencode-beta
 packettracer
 papirus-folders

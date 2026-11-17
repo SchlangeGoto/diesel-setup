@@ -28,6 +28,7 @@ eza
 fastfetch
 fd
 ffmpegthumbnailer
+figlet
 file-roller
 filezilla
 fio
