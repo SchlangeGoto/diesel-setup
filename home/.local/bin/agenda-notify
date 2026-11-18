@@ -20,6 +20,16 @@ STATE = Path(os.environ.get("XDG_STATE_HOME", HOME / ".local/state")) / "agenda-
 WINDOW_SECONDS = 10 * 60
 NOTIFY = "/usr/bin/notify-send"
 
+# School events are intentionally excluded: only personal appointments and
+# tests/deadlines are worth an interruption.
+DEFAULT_CALENDARS = ("Privat", "Tests & Due Dates")
+
+
+def notify_calendars() -> set[str]:
+    raw = os.environ.get("AGENDA_NOTIFY_CALENDARS", "")
+    names = [part.strip() for part in raw.split(",") if part.strip()] or DEFAULT_CALENDARS
+    return {name.casefold() for name in names}
+
 
 def load_notified() -> dict:
     try:
@@ -55,8 +65,12 @@ def main() -> None:
     now = dt.datetime.now().astimezone()
     notified = load_notified()
     changed = False
+    allowed = notify_calendars()
 
     for event in data.get("events") or []:
+        if (event.get("calendar") or "").strip().casefold() not in allowed:
+            continue
+
         start_raw = event.get("start") or ""
         if "T" not in start_raw:
             continue

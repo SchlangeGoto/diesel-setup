@@ -1,6 +1,6 @@
 # Hardware snapshot
 
-Generated: 2026-11-17T11:08:32+01:00
+Generated: 2026-11-18T11:43:44+01:00
 
 ## System
 ```
@@ -25,10 +25,10 @@ Socket(s):                               1
 Stepping:                                0
 Microcode version:                       0xb204037
 Frequency boost:                         enabled
-CPU(s) scaling MHz:                      53%
+CPU(s) scaling MHz:                      56%
 CPU max MHz:                             2000,0000
 CPU min MHz:                             605,2640
-BogoMIPS:                                3992,28
+BogoMIPS:                                3992,53
 Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good amd_lbr_v2 nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpuid_fault cpb cat_l3 cdp_l3 hw_pstate ssbd mba perfmon_v2 ibrs ibpb stibp ibrs_enhanced vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local user_shstk avx_vnni avx512_bf16 clzero irperf xsaveerptr rdpru wbnoinvd cppc arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif x2avic v_spec_ctrl vnmi avx512vbmi umip pku ospke avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid bus_lock_detect movdiri movdir64b overflow_recov succor smca fsrm avx512_vp2intersect flush_l1d amd_lbr_pmc_freeze
 Virtualization:                          AMD-V
 L1d cache:                               576 KiB (12 instances)
@@ -161,29 +161,30 @@ nvme0n1
 ├─nvme0n1p2 btrfs        ARCH  53034fdb-cae5-4b7d-bf13-cd367d2b0362    1,2T    15% /home
 │                                                                                  /
 ├─nvme0n1p3                                                                        
-├─nvme0n1p4 ntfs               CC66EB1366EAFD58                                    
+├─nvme0n1p4 ntfs               CC66EB1366EAFD58                      273,3G    41% /run/media/kraftstoff/CC66EB1366EAFD58
 └─nvme0n1p5 ntfs               5070DD9A70DD86DE                                    
 ```
 
 ## Memory
 ```
                total        used        free      shared  buff/cache   available
-Mem:            30Gi        17Gi       877Mi       870Mi        10Gi        12Gi
+Mem:            30Gi       8,3Gi        11Gi       201Mi        11Gi        22Gi
 Swap:             0B          0B          0B
 ```
 
 ## Filesystems
 ```
 Filesystem     Type      Size  Used Avail Use% Mounted on
-/dev/nvme0n1p2 btrfs     1,4T  205G  1,2T  15% /
+/dev/nvme0n1p2 btrfs     1,4T  211G  1,2T  16% /
 devtmpfs       devtmpfs  4,0M     0  4,0M   0% /dev
-tmpfs          tmpfs      16G  119M   16G   1% /dev/shm
+tmpfs          tmpfs      16G   42M   16G   1% /dev/shm
 efivarfs       efivarfs  128K   56K   68K  46% /sys/firmware/efi/efivars
-tmpfs          tmpfs     6,1G  1,8M  6,1G   1% /run
+tmpfs          tmpfs     6,1G  1,7M  6,1G   1% /run
 none           tmpfs     1,0M     0  1,0M   0% /run/credentials/systemd-journald.service
-tmpfs          tmpfs      16G  425M   15G   3% /tmp
-/dev/nvme0n1p2 btrfs     1,4T  205G  1,2T  15% /home
-tmpfs          tmpfs     3,1G   22M  3,1G   1% /run/user/1000
+tmpfs          tmpfs      16G   65M   16G   1% /tmp
+/dev/nvme0n1p2 btrfs     1,4T  211G  1,2T  16% /home
+tmpfs          tmpfs     3,1G  2,5M  3,1G   1% /run/user/1000
+/dev/nvme0n1p4 ntfs3     467G  194G  274G  42% /run/media/kraftstoff/CC66EB1366EAFD58
 ```
 
 ## EFI boot entries
