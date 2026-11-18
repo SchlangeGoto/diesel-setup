@@ -7,7 +7,7 @@ HOME_DIR="${HOME}"
 DRY_RUN=0
 INSTALL_PACKAGES=1
 APPLY_HARDWARE=0
-SECRETS_DIR="${DIESEL_SECRETS_DIR:-$HOME_DIR/diesel-secrets}"
+SECRETS_DIR="${DIESEL_SECRETS_DIR:-$HOME_DIR/Projects/System/diesel-secrets}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="$HOME_DIR/.setup-backup/$STAMP"
 
@@ -20,8 +20,8 @@ Usage: ./install.sh [--dry-run] [--no-packages] [--hardware]
   --hardware      Also apply hardware-specific files (fstab, 40_custom,
                   timeshift.json). Review the diffs first!
 
-The private secrets repo is expected at ~/diesel-secrets or
-$DIESEL_SECRETS_DIR.
+The private secrets repo is expected at ~/Projects/System/diesel-secrets
+or $DIESEL_SECRETS_DIR.
 EOF
 }
 

@@ -14,7 +14,7 @@ git clone --branch "$(cat caelestia/base.txt)" \
   https://github.com/caelestia-dots/shell.git ~/.config/quickshell/caelestia
 cd ~/.config/quickshell/caelestia
 git checkout -b local/agenda
-git am ~/diesel-setup/caelestia/patches/*.patch
+git am ~/Projects/System/diesel-setup/caelestia/patches/*.patch
 ```
 
 See `../docs/caelestia.md` for updating/rebase instructions.

@@ -14,8 +14,8 @@ Prerequisites: a working Arch base install, `git`, `base-devel`, and a user
 account. The installer needs `sudo`.
 
 ```sh
-git clone git@github.com:SchlangeGoto/diesel-setup.git ~/diesel-setup
-cd ~/diesel-setup
+git clone git@github.com:SchlangeGoto/diesel-setup.git ~/Projects/System/diesel-setup
+cd ~/Projects/System/diesel-setup
 ./install.sh
 ```
 
@@ -34,7 +34,7 @@ not stored here.
 ## Update the backup on the current machine
 
 ```sh
-cd ~/diesel-setup
+cd ~/Projects/System/diesel-setup
 ./backup.sh
 ```
 
@@ -73,7 +73,7 @@ When Caelestia updates, rebase the local checkout and re-export the patches:
 cd ~/.config/quickshell/caelestia
 git fetch --tags
 git rebase v2.6.0
-~/Projects/diesel-setup/backup.sh
+~/Projects/System/diesel-setup/backup.sh
 ```
 
 ## Security

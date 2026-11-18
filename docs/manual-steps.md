@@ -6,8 +6,8 @@ state or hardware-specific data.
 ## Secrets
 
 ```sh
-git clone git@github.com:SchlangeGoto/diesel-secrets.git ~/diesel-secrets
-~/diesel-secrets/unseal.sh
+git clone git@github.com:SchlangeGoto/diesel-secrets.git ~/Projects/System/diesel-secrets
+~/Projects/System/diesel-secrets/unseal.sh
 ```
 
 The archive contains SSH keys/config, `~/.face`, the SDDM avatar, gws/gh/gcloud

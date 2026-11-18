@@ -23,8 +23,8 @@ Mount the target system and `arch-chroot` into it.
 ## 2. Clone the setup
 
 ```sh
-git clone git@github.com:SchlangeGoto/diesel-setup.git ~/diesel-setup
-cd ~/diesel-setup
+git clone git@github.com:SchlangeGoto/diesel-setup.git ~/Projects/System/diesel-setup
+cd ~/Projects/System/diesel-setup
 ```
 
 If the repository was cloned without `git-lfs`, install it first and run
@@ -76,8 +76,8 @@ Do not copy `grub.cfg` from the backup; it is generated.
 ## 5. Secrets
 
 ```sh
-git clone git@github.com:SchlangeGoto/diesel-secrets.git ~/diesel-secrets
-~/diesel-secrets/unseal.sh
+git clone git@github.com:SchlangeGoto/diesel-secrets.git ~/Projects/System/diesel-secrets
+~/Projects/System/diesel-secrets/unseal.sh
 sudo systemctl restart NetworkManager
 ```
 

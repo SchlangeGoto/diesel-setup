@@ -22,7 +22,7 @@ git clone --branch v2.5.0 https://github.com/caelestia-dots/shell.git \
   ~/.config/quickshell/caelestia
 cd ~/.config/quickshell/caelestia
 git checkout -b local/agenda
-git am ~/diesel-setup/caelestia/patches/*.patch
+git am ~/Projects/System/diesel-setup/caelestia/patches/*.patch
 ```
 
 ## Update
@@ -31,7 +31,7 @@ git am ~/diesel-setup/caelestia/patches/*.patch
 cd ~/.config/quickshell/caelestia
 git fetch --tags
 git rebase v2.6.0          # new upstream tag
-~/diesel-setup/backup.sh   # re-export patches and refresh backup
+~/Projects/System/diesel-setup/backup.sh   # re-export patches and refresh backup
 ```
 
 If a patch conflicts, resolve it in the local checkout, finish the rebase, then
